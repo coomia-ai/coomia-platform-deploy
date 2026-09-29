@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Coomia AI Data Platform Docker Compose Environment",
+  "description": "Machine-readable contract for a parsed compose/.env file. Image fields are blank in the distribution template but must contain approved immutable RepoDigests in an installable customer configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "PLATFORM_API_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "PLATFORM_UI_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "FLINK_LOCAL_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "POSTGRES_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "MINIO_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "MINIO_MC_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "NESSIE_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "TUGRAPH_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "DORIS_FE_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "DORIS_BE_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "KAFKA_IMAGE": { "$ref": "#/$defs/imageDigest" },
+    "REDIS_IMAGE": { "$ref": "#/$defs/imageDigest" },
+
+    "POSTGRES_USER": { "$ref": "#/$defs/sqlIdentifier" },
+    "POSTGRES_PASSWORD": { "$ref": "#/$defs/secret16" },
+    "POSTGRES_DB": { "$ref": "#/$defs/sqlIdentifier" },
+    "DATABASE_URL": {
+      "type": "string",
+      "pattern": "^postgresql\\+asyncpg://[^\\s]+@postgres:5432/[A-Za-z_][A-Za-z0-9_]*$",
+      "description": "Must match POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB. Do not print this value."
+    },
+
+    "MINIO_ROOT_USER": { "type": "string", "minLength": 3 },
+    "MINIO_ROOT_PASSWORD": { "$ref": "#/$defs/secret16" },
+    "DORIS_USER": { "const": "root" },
+    "DORIS_PASSWORD": { "type": "string", "minLength": 12 },
+    "REDIS_PASSWORD": { "$ref": "#/$defs/secret16" },
+    "TUGRAPH_USER": { "type": "string", "minLength": 1 },
+    "TUGRAPH_PASSWORD": { "$ref": "#/$defs/secret16" },
+
+    "JWT_SECRET": { "$ref": "#/$defs/secret32" },
+    "DELIVERY_REPORT_HMAC_SECRET": {
+      "allOf": [
+        { "$ref": "#/$defs/secret32" }
+      ],
+      "description": "Must be different from JWT_SECRET."
+    },
+    "DELIVERY_REPORT_HMAC_KEY_ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,32}$"
+    },
+    "DELIVERY_REPORT_HMAC_PREVIOUS_KEYS": {
+      "type": "string",
+      "pattern": "^\\{.*\\}$",
+      "description": "JSON object encoded as a dotenv string."
+    },
+    "MDS_FLINK_CONTROL_TOKEN": {
+      "type": "string",
+      "minLength": 32,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+
+    "LICENSE_MODE": { "type": "string", "enum": ["online", "offline"] },
+    "LICENSE_SERVER_URL": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "COOMIA_LICENSE_PUBLIC_KEY_FILE": { "type": "string" },
+
+    "MDS_FLINK_ARTIFACT_DIR": { "$ref": "#/$defs/absolutePath" },
+    "MDS_GENERATED_CONFIG_DIR": { "$ref": "#/$defs/absolutePath" },
+    "MDS_INTAKE_SECRETS_DIR": { "$ref": "#/$defs/absolutePath" },
+    "DOCKER_SOCKET_PATH": { "$ref": "#/$defs/absolutePath" },
+
+    "BIND_ADDRESS": { "type": "string", "minLength": 1 },
+    "PLATFORM_UI_PORT": { "$ref": "#/$defs/portString" },
+    "PLATFORM_API_PORT": { "$ref": "#/$defs/portString" },
+    "CORS_ORIGINS": {
+      "type": "string",
+      "minLength": 1,
+      "not": { "const": "*" },
+      "description": "Comma-separated trusted UI origins. Wildcard is not permitted for production."
+    },
+    "INSTALL_WAIT_TIMEOUT_SECONDS": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{1,4}$"
+    },
+
+    "MDS_DATA_SUBNET": { "type": "string", "pattern": "^[0-9.]+/[0-9]{1,2}$" },
+    "MDS_DATA_GATEWAY": { "type": "string", "pattern": "^[0-9.]+$" },
+    "DORIS_FE_IP": { "type": "string", "pattern": "^[0-9.]+$" },
+    "DORIS_BE_IP": { "type": "string", "pattern": "^[0-9.]+$" }
+  },
+  "required": [
+    "PLATFORM_API_IMAGE",
+    "PLATFORM_UI_IMAGE",
+    "FLINK_LOCAL_IMAGE",
+    "POSTGRES_IMAGE",
+    "MINIO_IMAGE",
+    "MINIO_MC_IMAGE",
+    "NESSIE_IMAGE",
+    "TUGRAPH_IMAGE",
+    "DORIS_FE_IMAGE",
+    "DORIS_BE_IMAGE",
+    "KAFKA_IMAGE",
+    "REDIS_IMAGE",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_DB",
+    "DATABASE_URL",
+    "MINIO_ROOT_USER",
+    "MINIO_ROOT_PASSWORD",
+    "DORIS_USER",
+    "DORIS_PASSWORD",
+    "REDIS_PASSWORD",
+    "TUGRAPH_USER",
+    "TUGRAPH_PASSWORD",
+    "JWT_SECRET",
+    "DELIVERY_REPORT_HMAC_SECRET",
+    "DELIVERY_REPORT_HMAC_KEY_ID",
+    "DELIVERY_REPORT_HMAC_PREVIOUS_KEYS",
+    "MDS_FLINK_CONTROL_TOKEN",
+    "LICENSE_MODE",
+    "LICENSE_SERVER_URL",
+    "COOMIA_LICENSE_PUBLIC_KEY_FILE",
+    "MDS_FLINK_ARTIFACT_DIR",
+    "MDS_GENERATED_CONFIG_DIR",
+    "MDS_INTAKE_SECRETS_DIR",
+    "DOCKER_SOCKET_PATH",
+    "BIND_ADDRESS",
+    "PLATFORM_UI_PORT",
+    "PLATFORM_API_PORT",
+    "CORS_ORIGINS",
+    "INSTALL_WAIT_TIMEOUT_SECONDS",
+    "MDS_DATA_SUBNET",
+    "MDS_DATA_GATEWAY",
+    "DORIS_FE_IP",
+    "DORIS_BE_IP"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "LICENSE_MODE": { "const": "offline" } },
+        "required": ["LICENSE_MODE"]
+      },
+      "then": {
+        "properties": {
+          "COOMIA_LICENSE_PUBLIC_KEY_FILE": { "$ref": "#/$defs/absolutePath" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "imageDigest": {
+      "type": "string",
+      "pattern": "^[^\\s]+@sha256:[0-9a-f]{64}$",
+      "description": "Publisher-approved immutable OCI RepoDigest."
+    },
+    "sqlIdentifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "secret16": {
+      "type": "string",
+      "minLength": 16,
+      "description": "Sensitive value. Never include it in AI output or diagnostic reports."
+    },
+    "secret32": {
+      "type": "string",
+      "minLength": 32,
+      "description": "Sensitive value. Never include it in AI output or diagnostic reports."
+    },
+    "absolutePath": {
+      "type": "string",
+      "pattern": "^/",
+      "minLength": 2
+    },
+    "portString": {
+      "type": "string",
+      "pattern": "^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
+    }
+  }
+}

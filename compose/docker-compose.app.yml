@@ -1,0 +1,133 @@
+services:
+  platform-api:
+    image: ${PLATFORM_API_IMAGE:?set PLATFORM_API_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-platform-api
+    restart: unless-stopped
+    environment:
+      BUILD_PROFILE: customer
+      LICENSE_ENFORCEMENT: "true"
+      LICENSE_VERIFY_MODE: ${LICENSE_MODE:-online}
+      LICENSE_SERVER_URL: ${LICENSE_SERVER_URL:-https://coomia.com}
+      LICENSE_STORE_DIR: /var/lib/mds
+      LICENSE_GRACE_PERIOD_DAYS: "7"
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      DELIVERY_REPORT_HMAC_SECRET: ${DELIVERY_REPORT_HMAC_SECRET:?set DELIVERY_REPORT_HMAC_SECRET}
+      DELIVERY_REPORT_HMAC_KEY_ID: ${DELIVERY_REPORT_HMAC_KEY_ID:-v1}
+      DELIVERY_REPORT_HMAC_PREVIOUS_KEYS: ${DELIVERY_REPORT_HMAC_PREVIOUS_KEYS:-{}}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      S3_ENDPOINT: http://minio:9000
+      S3_ENDPOINT_CONTAINER: http://minio:9000
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      NESSIE_URI: http://nessie:19120/api/v2
+      ICEBERG_CATALOG_URI: http://nessie:19120/iceberg
+      ICEBERG_CATALOG_URI_CONTAINER: http://nessie:19120/iceberg
+      DORIS_HOST: doris-fe
+      DORIS_PORT: "9030"
+      DORIS_FE_CONTAINER_HOST: doris-fe
+      DORIS_FE_CONTAINER_PORT: "8030"
+      DORIS_USER: ${DORIS_USER:?set DORIS_USER}
+      DORIS_PASSWORD: ${DORIS_PASSWORD:?set DORIS_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BOOTSTRAP_CONTAINER: kafka:9092
+      TUGRAPH_ENABLED: "true"
+      TUGRAPH_BOLT_URI: bolt://tugraph:7687
+      TUGRAPH_BOLT_URI_CONTAINER: bolt://tugraph:7687
+      TUGRAPH_USER: ${TUGRAPH_USER:?set TUGRAPH_USER}
+      TUGRAPH_PASSWORD: ${TUGRAPH_PASSWORD:?set TUGRAPH_PASSWORD}
+      INTAKE_REQUIRE_PROJECT_CREDENTIALS: "true"
+      FLINK_RUNTIME: local-docker
+      FLINK_LOCAL_IMAGE: ${FLINK_LOCAL_IMAGE:?set FLINK_LOCAL_IMAGE}
+      FLINK_UNIFIED_ARTIFACT_SHA256: ${FLINK_UNIFIED_ARTIFACT_SHA256:?installer must attest the Flink JAR}
+      FLINK_DOCKER_CONTROL_TOKEN: ${MDS_FLINK_CONTROL_TOKEN:?set MDS_FLINK_CONTROL_TOKEN}
+      FLINK_LOCAL_ARTIFACT_UID: ${FLINK_LOCAL_ARTIFACT_UID:?installer must inspect the Flink image UID}
+      FLINK_LOCAL_ARTIFACT_GID: ${FLINK_LOCAL_ARTIFACT_GID:?installer must inspect the Flink image GID}
+      DOCKER_HOST: tcp://flink-docker-proxy:2375
+      TMPDIR: ${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}
+      DEBUG: "false"
+      OTEL_ENABLED: "false"
+    ports:
+      - "${BIND_ADDRESS:-0.0.0.0}:${PLATFORM_API_PORT:-8050}:8050"
+    volumes:
+      - license-state:/var/lib/mds
+      - ${MDS_INTAKE_SECRETS_DIR:?set MDS_INTAKE_SECRETS_DIR}:/run/secrets:ro
+      - ${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}:${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}
+    depends_on:
+      postgres: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+      nessie: { condition: service_healthy }
+      doris-auth-check: { condition: service_completed_successfully }
+      kafka: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      tugraph: { condition: service_healthy }
+      flink-docker-proxy: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8050/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 45s
+    networks: [mds-frontend, mds-data, mds-streaming, flink-control]
+
+  flink-docker-proxy:
+    image: ${PLATFORM_API_IMAGE:?set PLATFORM_API_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-flink-docker-proxy
+    restart: unless-stopped
+    entrypoint: ["python", "-m", "uvicorn"]
+    command: ["app.ops.flink_docker_gateway:app", "--host", "0.0.0.0", "--port", "2375"]
+    environment:
+      MDS_FLINK_CONTROL_TOKEN: ${MDS_FLINK_CONTROL_TOKEN:?set MDS_FLINK_CONTROL_TOKEN}
+      FLINK_LOCAL_IMAGE: ${FLINK_LOCAL_IMAGE:?set FLINK_LOCAL_IMAGE}
+      MDS_FLINK_ARTIFACT_DIR: ${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}
+      DOCKER_SOCKET_PATH: /var/run/docker.sock
+    volumes:
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      - ${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}:${MDS_FLINK_ARTIFACT_DIR:?set MDS_FLINK_ARTIFACT_DIR}:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,httpx; r=httpx.get('http://127.0.0.1:2375/_ping',headers={'X-MDS-Flink-Control-Token':os.environ['MDS_FLINK_CONTROL_TOKEN']}); r.raise_for_status()"]
+      interval: 5s
+      timeout: 3s
+      retries: 18
+      start_period: 10s
+    networks: [flink-control]
+
+  doris-auth-check:
+    image: ${PLATFORM_API_IMAGE:?set PLATFORM_API_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-doris-auth-check
+    restart: "no"
+    entrypoint: ["python", "-m", "app.ops.verify_doris_auth"]
+    environment:
+      DORIS_HOST: doris-fe
+      DORIS_PORT: "9030"
+      DORIS_USER: ${DORIS_USER:?set DORIS_USER}
+      DORIS_PASSWORD: ${DORIS_PASSWORD:?set DORIS_PASSWORD}
+    depends_on:
+      doris-fe: { condition: service_healthy }
+    networks: [mds-data]
+
+  platform-ui:
+    image: ${PLATFORM_UI_IMAGE:?set PLATFORM_UI_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-platform-ui
+    restart: unless-stopped
+    environment:
+      INTERNAL_API_URL: http://platform-api:8050
+    ports:
+      - "${BIND_ADDRESS:-0.0.0.0}:${PLATFORM_UI_PORT:-3000}:3050"
+    depends_on:
+      platform-api: { condition: service_healthy }
+    networks: [mds-frontend]
+
+volumes:
+  license-state: { name: coomia-license-state }
+
+networks:
+  flink-control:
+    name: coomia-flink-control
+    internal: true

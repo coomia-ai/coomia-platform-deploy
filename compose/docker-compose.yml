@@ -1,0 +1,249 @@
+name: coomia-platform
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:?set POSTGRES_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB}
+      LANG: C.UTF-8
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_replication_slots=16
+      - -c
+      - max_wal_senders=16
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./config/postgres/init.sh:/docker-entrypoint-initdb.d/10-coomia-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    networks: [mds-data]
+
+  minio:
+    image: ${MINIO_IMAGE:?set MINIO_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-minio
+    hostname: minio
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    networks: [mds-data]
+
+  minio-init:
+    image: ${MINIO_MC_IMAGE:?set MINIO_MC_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"
+        for bucket in warehouse bronze silver gold flink-state; do
+          mc mb "local/$${bucket}" --ignore-existing
+          mc anonymous set none "local/$${bucket}"
+        done
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+    restart: "no"
+    networks: [mds-data]
+
+  nessie:
+    image: ${NESSIE_IMAGE:?set NESSIE_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-nessie
+    hostname: nessie
+    environment:
+      NESSIE_VERSION_STORE_TYPE: JDBC
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/nessie
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER:?set POSTGRES_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      NESSIE_CATALOG_SERVICE_ENABLED: "true"
+      NESSIE_CATALOG_DEFAULT_WAREHOUSE: warehouse
+      NESSIE_CATALOG_WAREHOUSES_WAREHOUSE_LOCATION: s3://warehouse/
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_ENDPOINT: http://minio:9000/
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_REGION: us-east-1
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_PATH_STYLE_ACCESS: "true"
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_ACCESS_KEY: urn:nessie-secret:quarkus:nessie.catalog.secrets.s3creds
+      NESSIE_CATALOG_SECRETS_S3CREDS_NAME: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
+      NESSIE_CATALOG_SECRETS_S3CREDS_SECRET: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:19120/api/v2/config"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    networks: [mds-data]
+
+  tugraph:
+    image: ${TUGRAPH_IMAGE:?set TUGRAPH_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-tugraph
+    hostname: tugraph
+    environment:
+      LGRAPH_USER: ${TUGRAPH_USER:?set TUGRAPH_USER}
+      LGRAPH_PASSWORD: ${TUGRAPH_PASSWORD:?set TUGRAPH_PASSWORD}
+    volumes:
+      - tugraph-data:/var/lib/lgraph/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7070/"]
+      interval: 30s
+      timeout: 10s
+      retries: 12
+      start_period: 45s
+    restart: unless-stopped
+    networks: [mds-data]
+    tty: true
+
+  doris-fe:
+    image: ${DORIS_FE_IMAGE:?set DORIS_FE_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-doris-fe
+    hostname: doris-fe
+    environment:
+      FE_SERVERS: fe1:${DORIS_FE_IP:-172.25.0.140}:9010
+      FE_ID: "1"
+      TZ: Asia/Shanghai
+    volumes:
+      - doris-fe-metadata:/opt/apache-doris/fe/doris-meta
+      - doris-fe-log:/opt/apache-doris/fe/log
+      - ${DORIS_FE_CONFIG:-./config/doris/fe.conf}:/opt/apache-doris/fe/conf/fe.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8030/api/health >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      mds-data:
+        ipv4_address: ${DORIS_FE_IP:-172.25.0.140}
+
+  doris-be:
+    image: ${DORIS_BE_IMAGE:?set DORIS_BE_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-doris-be
+    hostname: doris-be
+    entrypoint: ["bash", "init_be.sh"]
+    environment:
+      FE_SERVERS: fe1:${DORIS_FE_IP:-172.25.0.140}:9010
+      BE_ADDR: ${DORIS_BE_IP:-172.25.0.141}:9051
+      MASTER_FE_IP: ${DORIS_FE_IP:-172.25.0.140}
+      CURRENT_BE_IP: ${DORIS_BE_IP:-172.25.0.141}
+      CURRENT_BE_PORT: "9051"
+      PRIORITY_NETWORKS: ${MDS_DATA_SUBNET:-172.25.0.0/16}
+      TZ: Asia/Shanghai
+    volumes:
+      - doris-be-storage:/opt/apache-doris/be/storage
+      - doris-be-log:/opt/apache-doris/be/log
+      - ./config/doris/be.conf:/opt/apache-doris/be/conf/be.conf:ro
+    depends_on:
+      doris-fe:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8040/api/health >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+    restart: unless-stopped
+    networks:
+      mds-data:
+        ipv4_address: ${DORIS_BE_IP:-172.25.0.141}
+
+  kafka:
+    image: ${KAFKA_IMAGE:?set KAFKA_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-kafka
+    hostname: kafka
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      CLUSTER_ID: coomia-platform-kafka-001
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_NUM_PARTITIONS: "3"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 40s
+    restart: unless-stopped
+    networks: [mds-streaming]
+
+  redis:
+    image: ${REDIS_IMAGE:?set REDIS_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-redis
+    hostname: redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}", "--appendonly", "yes", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a '$${REDIS_PASSWORD}' ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+    restart: unless-stopped
+    networks: [mds-streaming]
+
+networks:
+  mds-frontend:
+    name: mds-frontend
+    driver: bridge
+  mds-data:
+    name: mds-data
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${MDS_DATA_SUBNET:-172.25.0.0/16}
+          gateway: ${MDS_DATA_GATEWAY:-172.25.0.1}
+  mds-streaming:
+    name: mds-streaming
+    driver: bridge
+
+volumes:
+  postgres-data: { name: coomia-postgres-data }
+  minio-data: { name: coomia-minio-data }
+  doris-fe-metadata: { name: coomia-doris-fe-metadata }
+  doris-fe-log: { name: coomia-doris-fe-log }
+  doris-be-storage: { name: coomia-doris-be-storage }
+  doris-be-log: { name: coomia-doris-be-log }
+  kafka-data: { name: coomia-kafka-data }
+  redis-data: { name: coomia-redis-data }
+  tugraph-data: { name: coomia-tugraph-data }

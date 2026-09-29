@@ -1,0 +1,274 @@
+# mds-mcp Flink namespace + RBAC for FLINK_RUNTIME=kubernetes.
+#
+# Apply:
+#   kubectl apply -f kubernetes/mds-flink-namespace.yaml
+#
+# If the SqlRunner image lives in a PRIVATE registry, copy that registry's pull
+# secret into this namespace and set FLINK_K8S_IMAGE_PULL_SECRET in .env, e.g.:
+#   kubectl get secret <pull-secret> -n <src-ns> -o yaml \
+#     | sed 's/namespace: <src-ns>/namespace: mds-flink/' \
+#     | kubectl apply -n mds-flink -f -
+# Public images need no pull secret — skip this.
+#
+# The Flink Kubernetes Operator must already be installed cluster-wide and
+# accepted by the customer's platform team before this manifest is applied.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mds-flink
+  labels:
+    app.kubernetes.io/managed-by: mds-mcp
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  # Deliberately unused. The API creates one mds-<pipeline-hash> identity per
+  # FlinkDeployment; no shared workload identity may launch TaskManagers.
+  name: mds-bootstrap-probe
+  namespace: mds-flink
+---
+# The operator-managed JobManager needs runtime objects, but never Kubernetes
+# Secret API access. Kubelet mounts referenced Secrets without granting the
+# workload ServiceAccount get/list/watch over every project's credentials.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: flink-runtime
+  namespace: mds-flink
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Native Flink resolves the JobManager Deployment only to attach its owner
+  # reference to dynamically created TaskManager Pods.  Keep this read-only.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: flink-role-binding
+  namespace: mds-flink
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: flink-runtime
+subjects:
+  - kind: ServiceAccount
+    name: mds-bootstrap-probe
+    namespace: mds-flink
+---
+# A compromised JobManager can create TaskManager Pods.  Bind each job to its
+# own service account and ensure a workload may create Pods only under that same
+# identity, with Secret references restricted to its content-addressed prefix.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: mds-flink-job-secret-isolation
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        (object.spec.serviceAccountName.startsWith('mds-') &&
+         request.userInfo.username == 'system:serviceaccount:mds-flink:' + object.spec.serviceAccountName)
+      message: "Flink workloads may create Pods only under their own isolated service account"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        ((object.metadata.name == object.spec.serviceAccountName ||
+          object.metadata.name.startsWith(object.spec.serviceAccountName + '-')) &&
+         has(object.metadata.labels) && has(object.metadata.labels.app) &&
+         object.metadata.labels.app == object.spec.serviceAccountName)
+      message: "Flink workload Pod name and app label must belong to its own cluster id"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        !has(object.spec.volumes) ||
+        object.spec.volumes.all(v, !has(v.secret) ||
+          v.secret.secretName.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))
+      message: "Flink workload Pods may mount only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        !has(object.spec.volumes) || object.spec.volumes.all(v,
+          !has(v.projected) || !has(v.projected.sources) || v.projected.sources.all(s,
+            !has(s.secret) ||
+            s.secret.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink projected volumes may include only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        object.spec.containers.all(c, !has(c.env) || c.env.all(e,
+          !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+          e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink workload containers may reference only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        !has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          !has(c.env) || c.env.all(e, !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+          e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink init containers may reference only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        object.spec.containers.all(c, !has(c.envFrom) || c.envFrom.all(e,
+          !has(e.secretRef) ||
+          e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink workload containers may import only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        !has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          !has(c.envFrom) || c.envFrom.all(e, !has(e.secretRef) ||
+          e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink init containers may import only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        !has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
+          (!has(c.env) || c.env.all(e, !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+           e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))) &&
+          (!has(c.envFrom) || c.envFrom.all(e, !has(e.secretRef) ||
+           e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))))
+      message: "Flink ephemeral containers may reference only their own job Secret"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: mds-flink-job-secret-isolation
+spec:
+  policyName: mds-flink-job-secret-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/managed-by: mds-mcp
+---
+# DELETE admission receives the existing Pod through oldObject.  A workload
+# may terminate only Pods carrying its own per-job service account.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: mds-flink-job-pod-delete-isolation
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["DELETE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        (has(oldObject.spec.serviceAccountName) &&
+         request.userInfo.username == 'system:serviceaccount:mds-flink:' + oldObject.spec.serviceAccountName)
+      message: "Flink workloads may delete only Pods owned by their isolated service account"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: mds-flink-job-pod-delete-isolation
+spec:
+  policyName: mds-flink-job-pod-delete-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/managed-by: mds-mcp
+---
+# Flink creates Services, HA ConfigMaps and coordination Leases beneath its
+# cluster id, which is identical to the per-job service-account name.  Keep
+# the shared discovery verbs, but fail closed on cross-job mutations.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: mds-flink-job-resource-isolation
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources: ["services", "configmaps"]
+      - apiGroups: ["coordination.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources: ["leases"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        (request.operation == 'DELETE'
+          ? (oldObject.metadata.name == request.userInfo.username.substring(32) ||
+             oldObject.metadata.name.startsWith(request.userInfo.username.substring(32) + '-'))
+          : (object.metadata.name == request.userInfo.username.substring(32) ||
+             object.metadata.name.startsWith(request.userInfo.username.substring(32) + '-')))
+      message: "Flink workloads may mutate only resources under their own cluster id"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:mds-flink:') ||
+        request.resource.resource != 'services' || request.operation == 'DELETE' ||
+        (has(object.spec.selector) && has(object.spec.selector.app) &&
+         object.spec.selector.app == request.userInfo.username.substring(32))
+      message: "Flink workload Services must select only Pods from their own cluster id"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: mds-flink-job-resource-isolation
+spec:
+  policyName: mds-flink-job-resource-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/managed-by: mds-mcp
+---
+# The control plane creates one RoleBinding per Flink job.  Without this gate it
+# could bind flink-runtime to its own cross-namespace ServiceAccount and then
+# use that role to create Pods outside the per-job workload restrictions above.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: mds-flink-rolebinding-isolation
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["rolebindings"]
+  validations:
+    - expression: >-
+        request.userInfo.username != 'system:serviceaccount:mds-app:platform-api' ||
+        (object.roleRef.apiGroup == 'rbac.authorization.k8s.io' &&
+         object.roleRef.kind == 'Role' && object.roleRef.name == 'flink-runtime' &&
+         object.subjects.size() == 1 &&
+         object.subjects[0].kind == 'ServiceAccount' &&
+         object.subjects[0].namespace == 'mds-flink' &&
+         object.subjects[0].name.startsWith('mds-') &&
+         object.metadata.name == object.subjects[0].name + '-runtime')
+      message: "platform-api may bind flink-runtime only to the matching isolated mds-flink job identity"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: mds-flink-rolebinding-isolation
+spec:
+  policyName: mds-flink-rolebinding-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        app.kubernetes.io/managed-by: mds-mcp

@@ -1,0 +1,182 @@
+# ============================================================
+#  Reference customer manifest for platform-api and isolated Flink execution.
+#  Complete cluster integration and acceptance testing are required before use.
+# ============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-api-config
+  namespace: mds-app
+data:
+  # ---- License (fail-closed) ----
+  BUILD_PROFILE: "customer"
+  LICENSE_ENFORCEMENT: "true"
+  LICENSE_VERIFY_MODE: "online"            # online | offline (air-gapped)
+  LICENSE_SERVER_URL: "https://coomia.com"
+  LICENSE_STORE_DIR: "/var/lib/mds"
+  LICENSE_GRACE_PERIOD_DAYS: "7"
+  # For offline/air-gapped sites, instead set:
+  #   LICENSE_VERIFY_MODE: "offline"
+  #   LICENSE_FILE_PATH: "/var/lib/mds/license.jwt"
+  #   LICENSE_PUBLIC_KEY_PATH: "/var/lib/mds/public.pem"   # also pinned in-image
+  #
+  # ---- Infra endpoints (customer fills these for their cluster) ----
+  EMBEDDING_TYPE: "ollama"
+  EMBEDDING_MODEL: "nomic-embed-text"
+  EMBEDDING_DIMENSIONS: "768"
+  OLLAMA_URL: "http://ollama.ai-infra.svc:11434"
+  MINIO_ENDPOINT: "minio.data-infra.svc:9000"
+  S3_ENDPOINT: "http://minio.data-infra.svc:9000"
+  S3_ENDPOINT_CONTAINER: "http://minio.data-infra.svc:9000"
+  NESSIE_URI: "http://nessie.data-infra.svc:19120/api/v2"
+  ICEBERG_CATALOG_URI: "http://nessie.data-infra.svc:19120/iceberg"
+  ICEBERG_CATALOG_URI_CONTAINER: "http://nessie.data-infra.svc:19120/iceberg"
+  ICEBERG_WAREHOUSE_NAME: "warehouse"
+  DORIS_HOST: "doris-fe-service.data-infra.svc"
+  DORIS_PORT: "9030"
+  # 8030 + Arrow Flight SQL 8070 (required by Flink Doris source connector).
+  DORIS_FE_CONTAINER_HOST: "doris-fe-flight-service.data-infra.svc"
+  DORIS_FE_CONTAINER_PORT: "8030"
+  REDIS_HOST: "redis.streaming-infra.svc"
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-kafka-bootstrap.streaming-infra.svc:9092"
+  KAFKA_BOOTSTRAP_CONTAINER: "kafka-kafka-bootstrap.streaming-infra.svc:9092"
+  TUGRAPH_BOLT_URI: "bolt://tugraph.data-infra.svc:7687"
+  TUGRAPH_BOLT_URI_CONTAINER: "bolt://tugraph.data-infra.svc:7687"
+  TUGRAPH_USER: "admin"
+  FLINK_RUNTIME: "kubernetes"
+  FLINK_K8S_NAMESPACE: "mds-flink"
+  # install.sh substitutes a validated, non-zero RepoDigest. The pull Secret is
+  # blank for public GHCR images and optional for a private registry.
+  FLINK_K8S_IMAGE: "${FLINK_K8S_IMAGE}"
+  FLINK_K8S_IMAGE_PULL_SECRET: "${FLINK_K8S_IMAGE_PULL_SECRET}"
+  INTAKE_REQUIRE_PROJECT_CREDENTIALS: "true"
+  FLINK_UNIFIED_ARTIFACT_SHA256: "${FLINK_UNIFIED_ARTIFACT_SHA256}"
+  DELIVERY_REPORT_HMAC_KEY_ID: "v1"
+  DEBUG: "false"
+  OTEL_ENABLED: "false"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: platform-api-license
+  namespace: mds-app
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 64Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-api
+  namespace: mds-app
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: platform-api-flink-runtime
+  namespace: mds-flink
+rules:
+  - apiGroups: ["flink.apache.org"]
+    resources: ["flinkdeployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["delete"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    # The trusted control plane resolves operator-provisioned, project-bound
+    # sink credential bundles by exact deterministic name.  It cannot list or
+    # watch Secrets; Flink workload service accounts retain zero Secret API
+    # permissions and may only consume their own generated SQL Secret.
+    verbs: ["get", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["create", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["create", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles"]
+    resourceNames: ["flink-runtime"]
+    verbs: ["bind"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: platform-api-flink-runtime
+  namespace: mds-flink
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: platform-api-flink-runtime
+subjects:
+  - kind: ServiceAccount
+    name: platform-api
+    namespace: mds-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-api
+  namespace: mds-app
+  labels: { app: platform-api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: platform-api }
+  template:
+    metadata:
+      labels: { app: platform-api }
+    spec:
+      serviceAccountName: platform-api
+${PLATFORM_API_IMAGE_PULL_SECRETS_BLOCK}
+      containers:
+        - name: api
+          # install.sh accepts immutable RepoDigests only.
+          image: ${PLATFORM_API_IMAGE}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { containerPort: 8050, name: http }
+          envFrom:
+            - configMapRef: { name: platform-api-config }
+            - secretRef: { name: platform-api-secret }
+          volumeMounts:
+            - name: license
+              mountPath: /var/lib/mds
+          # Don't probe /docs (it's allowlisted but disabled in some hardened
+          # builds); /health is always allowlisted by the license middleware.
+          readinessProbe:
+            httpGet: { path: /ready, port: 8050 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet: { path: /health, port: 8050 }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests: { cpu: "500m", memory: 1Gi }
+            limits: { cpu: "4", memory: 4Gi }
+      volumes:
+        - name: license
+          persistentVolumeClaim:
+            claimName: platform-api-license
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-api
+  namespace: mds-app
+spec:
+  selector: { app: platform-api }
+  ports:
+    - { name: http, port: 8050, targetPort: 8050 }

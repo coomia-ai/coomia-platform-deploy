@@ -1,0 +1,16 @@
+# Optional offline License configuration.
+# COOMIA_LICENSE_PUBLIC_KEY_FILE must reference the publisher's public key only.
+services:
+  platform-api:
+    environment:
+      LICENSE_ENFORCEMENT: "true"
+      LICENSE_VERIFY_MODE: "offline"
+      LICENSE_FILE_PATH: "/var/lib/mds/license.jwt"
+      LICENSE_STORE_DIR: "/var/lib/mds"
+      LICENSE_PUBLIC_KEY_PATH: "/etc/mds/license-public.pem"
+    volumes:
+      - license-state:/var/lib/mds
+      - ${COOMIA_LICENSE_PUBLIC_KEY_FILE:?Set the vendor public key file}:/etc/mds/license-public.pem:ro
+
+volumes:
+  license-state:

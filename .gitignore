@@ -1,0 +1,16 @@
+compose/.env
+compose/customer.env
+compose/generated/*
+!compose/generated/.gitignore
+compose/backup/*
+!compose/backup/.gitignore
+compose/secrets/*
+!compose/secrets/.gitignore
+*.jwt
+*.pem
+*.key
+*.p12
+*.pfx
+SHA256SUMS
+release-manifest.local.*
+diagnostics/

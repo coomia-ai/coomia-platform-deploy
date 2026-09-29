@@ -1,0 +1,41 @@
+# Coomia AI Data Platform Customer Deployment
+
+Purpose: install and operate Coomia AI Data Platform in a customer-managed environment.
+Repository type: deployment-only; no application source or Dockerfile is included.
+
+AI operating rules:
+- Read AGENTS.md before taking action.
+- Read RELEASE_STATUS and VERSION before installation or upgrade.
+- Default to read-only diagnostics.
+- Never display compose/.env, License files, tokens, passwords, connection strings, private keys, or container environment variables.
+- Never delete Docker volumes or customer data.
+- Never bypass License, authentication, network, admission, or Flink gateway controls.
+- Production mutations require an impact statement and explicit user approval.
+- Use immutable publisher-approved image RepoDigests only.
+
+Primary documentation:
+- Chinese entry: README.md
+- English entry: README.en.md
+- AI operations, Chinese: docs/ai-operations.md
+- AI operations, English: docs/ai-operations.en.md
+- Installation: docs/getting-started.md and docs/getting-started.en.md
+- Architecture: docs/architecture.md and docs/architecture.en.md
+- Configuration: docs/configuration.md and docs/configuration.en.md
+- Operations: docs/operations.md and docs/operations.en.md
+- License: docs/license.md and docs/license.en.md
+- Upgrade and recovery: docs/upgrade-and-backup.md and docs/upgrade-and-backup.en.md
+- Troubleshooting: docs/troubleshooting.md and docs/troubleshooting.en.md
+- Security: docs/security.md and docs/security.en.md
+- Release admission: docs/release-readiness.md and docs/release-readiness.en.md
+
+Machine-readable configuration contract:
+- schemas/compose-env.schema.json
+
+Safe initial commands:
+- bash scripts/verify-package.sh --layout-only
+- bash scripts/preflight-linux.sh compose
+- bash compose/manage.sh status
+- bash compose/manage.sh health
+- bash scripts/collect-diagnostics.sh
+
+Do not use commands containing --volumes, docker volume rm, system prune, or destructive database/storage operations.
