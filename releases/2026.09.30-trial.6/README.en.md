@@ -13,7 +13,7 @@ customer package.
 
 Current boundary:
 
-- The GHCR images are pushed, but Public visibility and anonymous pulls still require final confirmation.
+- All four GHCR images are Public and have passed credential-free anonymous reads by RepoDigest.
 - The repository remains `PREPARED`; formal installation is not allowed.
 - The Docker Compose customer package still awaits all infrastructure digests and final release evidence.
 - Kubernetes remains a reference implementation and is not a self-service `GO` path.

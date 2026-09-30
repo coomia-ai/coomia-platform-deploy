@@ -6,8 +6,8 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 
 ## Release status
 
-The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready,
-and the `trial.6` first-party image digests are recorded under
+The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready.
+The `trial.6` first-party images have passed GHCR Public and anonymous RepoDigest-read verification and are recorded under
 [`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/). Generic configuration templates intentionally remain
 blank. The complete customer package still requires approved infrastructure RepoDigests and final release evidence
 before `RELEASE_STATUS` can change to `GO`.

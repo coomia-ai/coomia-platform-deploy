@@ -4,8 +4,8 @@ English | [简体中文](KNOWN_ISSUES.md)
 
 ## Current release-preparation items
 
-- The `trial.6` application RepoDigests are published and recorded, but GHCR Public visibility, anonymous pulls,
-  and the complete infrastructure image set are not yet fully approved. This repository remains `PREPARED` until
+- The four `trial.6` application images have passed GHCR Public visibility and anonymous RepoDigest pull verification,
+  but the complete infrastructure image set is not yet fully approved. This repository remains `PREPARED` until
   release acceptance is complete.
 - Kubernetes content is an API and Flink isolation reference only. It does not include the complete UI, Ingress/TLS, monitoring, backup, or all infrastructure components and is not the standard self-service delivery path.
 

@@ -11,7 +11,7 @@
 
 当前边界：
 
-- GHCR 镜像已推送，但 Public 可见性和匿名拉取尚待最终确认；
+- 四个 GHCR 镜像均为 Public，并已按 RepoDigest 完成无登录凭据的匿名读取验证；
 - 根目录状态仍为 `PREPARED`，不得执行正式安装；
 - Docker Compose 客户包仍等待全部基础设施摘要和最终放行证据；
 - Kubernetes 仍为参考实施，不属于自助交付 `GO` 范围。

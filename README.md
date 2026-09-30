@@ -7,7 +7,8 @@
 ## 当前发布状态
 
 当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成，`trial.6` 的一方
-应用镜像摘要已记录在 [`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/)。通用配置模板仍按
+应用镜像已完成 GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
+[`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/)。通用配置模板仍按
 要求保持为空；完整客户包还必须写入同一版本批准的基础设施 RepoDigest，并通过最终放行后才能将
 `RELEASE_STATUS` 切换为 `GO`。
 
