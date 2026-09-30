@@ -4,7 +4,8 @@
 
 ## 当前发布准备项
 
-- 产品和基础设施镜像地址按要求留空。交付方填入批准的 RepoDigest 并完成发布验收前，本目录状态保持 `PREPARED`。
+- `trial.6` 应用镜像已推送并记录 RepoDigest，但 GHCR Public 可见性、匿名拉取和完整基础设施镜像摘要
+  尚未全部确认；完成发布验收前，本目录状态保持 `PREPARED`。
 - Kubernetes 内容仅提供 API 与 Flink 隔离参考，不包含完整 UI、Ingress/TLS、监控、备份和全部基础设施安装，因此不属于标准自助交付路径。
 
 ## 产品化边界

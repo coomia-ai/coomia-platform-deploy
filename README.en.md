@@ -6,11 +6,15 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 
 ## Release status
 
-The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready, while image fields intentionally remain empty. Before release, the publisher must insert the approved immutable RepoDigests and change `RELEASE_STATUS` to `GO`.
+The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready,
+and the `trial.6` first-party image digests are recorded under
+[`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/). Generic configuration templates intentionally remain
+blank. The complete customer package still requires approved infrastructure RepoDigests and final release evidence
+before `RELEASE_STATUS` can change to `GO`.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
-| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; awaiting image digests |
+| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; application images published, awaiting infrastructure digests and final approval |
 | Kubernetes | API and Flink isolation reference for an existing cluster | Requires publisher-assisted implementation |
 
 ## Quick start

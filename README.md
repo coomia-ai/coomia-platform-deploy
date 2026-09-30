@@ -6,11 +6,14 @@
 
 ## 当前发布状态
 
-当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成，但镜像字段按要求保持为空。发布前，交付方必须写入该版本批准的不可变 RepoDigest，并将 `RELEASE_STATUS` 切换为 `GO`。
+当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成，`trial.6` 的一方
+应用镜像摘要已记录在 [`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/)。通用配置模板仍按
+要求保持为空；完整客户包还必须写入同一版本批准的基础设施 RepoDigest，并通过最终放行后才能将
+`RELEASE_STATUS` 切换为 `GO`。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
-| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；等待镜像摘要 |
+| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；应用镜像已发布，等待基础设施摘要与最终放行 |
 | Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 需要交付方实施支持 |
 
 ## 快速开始

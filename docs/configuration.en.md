@@ -18,6 +18,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<published-digest>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<published-digest>
 ```
 
+The four current `trial.6` first-party digests are recorded in
+[`releases/2026.09.30-trial.6/application-images.env`](../releases/2026.09.30-trial.6/application-images.env).
+That file does not contain infrastructure images and is not a complete installation configuration.
+
 ```text
 <registry>/<image>@sha256:<64-lowercase-hex-digest>
 ```

@@ -2,6 +2,11 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.1-prepared - 2026-09-30
+
+- Recorded the four immutable GHCR RepoDigests for the `trial.6` first-party application images.
+- Kept generic templates blank and documented the remaining infrastructure, Public-visibility, and final-approval gates.
+
 ## 0.2.0-prepared - 2026-09-29
 
 - Restructured the package as an independent customer deployment repository with application image locations left empty.

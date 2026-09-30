@@ -18,6 +18,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<发布摘要>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 ```
 
+当前 `trial.6` 的四个一方镜像摘要见
+[`releases/2026.09.30-trial.6/application-images.env`](../releases/2026.09.30-trial.6/application-images.env)。
+该文件不包含基础设施镜像，不能单独作为完整安装配置。
+
 ```text
 <镜像仓库>/<镜像名称>@sha256:<64 位小写十六进制摘要>
 ```
