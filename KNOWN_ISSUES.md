@@ -4,9 +4,10 @@
 
 ## 当前发布准备项
 
-- `trial.6` 的应用与 Compose 基础设施镜像摘要已经确认。对象存储已从未通过 Critical 门禁的旧 MinIO
-  镜像切换为 RustFS 1.0.0；在完成空环境 Compose 安装、Nessie/Iceberg/Flink 联调和最终发布审批前，
-  本目录状态保持 `PREPARED`。
+- `trial.7` 一方镜像和厂商隔离 K8s 全栈已通过验证，包含稳定机器指纹修复、PostgreSQL 16.14 与
+  TuGraph 4.5.1。客户 Compose 仍使用独立的 Apache Kafka 镜像契约，尚未在全新 Linux 主机完成完整
+  首装、Nessie/Iceberg/Flink、1 天 License 到期和自动暂停验收，因此状态保持 `PREPARED`。
+- `trial.6` 旧候选包含 TuGraph 3.5.0，缺少平台所需 Bolt 接口，必须废弃且不得交付。
 - RustFS 使用新的 `coomia-object-storage-data` 数据卷。旧 MinIO 数据卷不能直接挂载到 RustFS；已有环境
   如需迁移，必须执行单独设计、备份验证和对象级迁移，不能按普通原地升级处理。
 - Kubernetes 内容仅提供 API 与 Flink 隔离参考，不包含完整 UI、Ingress/TLS、监控、备份和全部基础设施安装，因此不属于标准自助交付路径。

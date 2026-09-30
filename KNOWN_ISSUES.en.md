@@ -4,9 +4,11 @@ English | [简体中文](KNOWN_ISSUES.md)
 
 ## Current release-preparation items
 
-- The `trial.6` application and Compose infrastructure RepoDigests are confirmed. Object storage moved from the old
-  MinIO image that failed the Critical gate to RustFS 1.0.0. This repository remains `PREPARED` until clean-host
-  Compose installation, Nessie/Iceberg/Flink integration, and final release approval are complete.
+- The `trial.7` first-party images and vendor-isolated Kubernetes full stack passed validation, including the stable
+  machine-fingerprint fix, PostgreSQL 16.14, and TuGraph 4.5.1. Customer Compose uses a separate Apache Kafka image
+  contract and still requires clean-host Linux installation, Nessie/Iceberg/Flink, one-day License expiry, and
+  automatic-pause acceptance. The repository therefore remains `PREPARED`.
+- The old `trial.6` candidate contains TuGraph 3.5.0 without the required Bolt interface and must not be delivered.
 - RustFS uses the new `coomia-object-storage-data` volume. An existing MinIO volume must not be mounted directly into
   RustFS; migration requires a separately designed, backup-verified object-level migration rather than an in-place upgrade.
 - Kubernetes content is an API and Flink isolation reference only. It does not include the complete UI, Ingress/TLS, monitoring, backup, or all infrastructure components and is not the standard self-service delivery path.

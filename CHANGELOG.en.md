@@ -2,6 +2,13 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.3-prepared - 2026-09-30
+
+- Published the protected API image with the multi-worker first-boot fingerprint race fix and synchronized immutable UI, Flink Local, and Flink K8s digests.
+- Passed pre-push and post-push security gates, generated SBOMs, and verified credential-free anonymous reads for all four GHCR packages.
+- Updated PostgreSQL 16.14 and TuGraph 4.5.1 digests and recorded vendor-isolated Kubernetes full-stack acceptance.
+- Kept the package `PREPARED` pending clean-host Compose, one-day License expiry, and automatic Flink pause acceptance.
+
 ## 0.2.2-prepared - 2026-09-30
 
 - Replaced the Compose MinIO image, which failed the Critical-vulnerability gate, with the immutable RustFS 1.0.0 RepoDigest.

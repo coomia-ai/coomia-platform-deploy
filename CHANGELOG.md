@@ -2,6 +2,13 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.3-prepared - 2026-09-30
+
+- 发布修复多 Worker 首次启动机器指纹竞态的加密 API 镜像，并同步 UI、Flink Local、Flink K8s 不可变摘要；
+- 四个 GHCR 包完成推送前和推送后安全门禁、SBOM 生成及无凭据匿名读取验证；
+- 更新 PostgreSQL 16.14 与 TuGraph 4.5.1 摘要，记录厂商隔离 K8s 全栈验收通过；
+- 保持 `PREPARED`，等待客户 Compose 干净主机、1 天 License 到期和 Flink 自动暂停验收。
+
 ## 0.2.2-prepared - 2026-09-30
 
 - 将 Compose 对象存储从存在未修复 Critical 漏洞的 MinIO 镜像切换为 RustFS 1.0.0 固定摘要；

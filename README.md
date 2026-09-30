@@ -6,15 +6,16 @@
 
 ## 当前发布状态
 
-当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成，`trial.6` 的一方
-应用镜像已完成 GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
-[`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/)。通用配置模板仍按
-要求保持为空；`trial.6` 的 Compose 基础设施摘要已经记录并验证，其中对象存储使用 RustFS 1.0.0。
-完整客户包仍必须通过候选包校验、空环境安装验收和最终放行后，才能将 `RELEASE_STATUS` 切换为 `GO`。
+当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成。`trial.7` 的四个
+一方镜像已完成加密构建、安全门禁、GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
+[`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/)。厂商隔离 K8s 全栈已验证修正后的
+PostgreSQL 16.14 和 TuGraph 4.5.1 摘要，以及 RustFS、Nessie、Doris、Kafka、Redis、API 和 UI。
+客户 Compose 仍需完成干净主机安装、1 天 License 生命周期、Flink 到期自动暂停和最终放行，之后才能
+将 `RELEASE_STATUS` 切换为 `GO`。`trial.6` 旧候选包含不兼容 TuGraph，已作废且不得交付。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
-| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；镜像摘要已就绪，等待候选包与最终放行 |
+| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；trial.7 候选等待干净主机验收与最终放行 |
 | Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 需要交付方实施支持 |
 
 ## 快速开始

@@ -7,15 +7,16 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 ## Release status
 
 The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready.
-The `trial.6` first-party images have passed GHCR Public and anonymous RepoDigest-read verification and are recorded under
-[`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/). Generic configuration templates intentionally remain
-blank. The `trial.6` Compose infrastructure RepoDigests are now recorded and verified, with RustFS 1.0.0 providing
-object storage. The package still requires candidate verification, a clean-host installation acceptance run, and
-final release evidence before `RELEASE_STATUS` can change to `GO`.
+The four protected `trial.7` first-party images passed security gates, GHCR Public publication, and anonymous
+RepoDigest reads; they are recorded under [`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/).
+Vendor-isolated Kubernetes acceptance covered the corrected PostgreSQL 16.14 and TuGraph 4.5.1 digests together with
+RustFS, Nessie, Doris, Kafka, Redis, API, and UI. Clean-host Compose installation, the one-day License lifecycle,
+automatic Flink pause on expiry, and final release approval remain required before `RELEASE_STATUS` can change to
+`GO`. The incompatible `trial.6` candidate is invalid and must not be delivered.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
-| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; image digests ready, awaiting candidate and final approval |
+| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; trial.7 awaits clean-host acceptance and final approval |
 | Kubernetes | API and Flink isolation reference for an existing cluster | Requires publisher-assisted implementation |
 
 ## Quick start

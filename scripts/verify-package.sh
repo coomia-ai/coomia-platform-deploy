@@ -19,9 +19,9 @@ fail() { printf '[FAIL] %s\n' "$*"; failures=$((failures + 1)); }
 required=(
   README.md README.en.md AGENTS.md llms.txt LICENSE VERSION RELEASE_STATUS
   CHANGELOG.md CHANGELOG.en.md KNOWN_ISSUES.md KNOWN_ISSUES.en.md
-  releases/2026.09.30-trial.6/application-images.env
-  releases/2026.09.30-trial.6/infrastructure-images.env
-  releases/2026.09.30-trial.6/README.md releases/2026.09.30-trial.6/README.en.md
+  releases/2026.09.30-trial.7/application-images.env
+  releases/2026.09.30-trial.7/infrastructure-images.env
+  releases/2026.09.30-trial.7/README.md releases/2026.09.30-trial.7/README.en.md
   release-manifest.example.md release-manifest.example.en.md install.sh
   compose/.env.example compose/docker-compose.yml compose/docker-compose.app.yml
   compose/docker-compose.admin.yml compose/docker-compose.license-offline.yml
