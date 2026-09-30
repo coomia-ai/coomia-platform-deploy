@@ -2,6 +2,12 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.2-prepared - 2026-09-30
+
+- 将 Compose 对象存储从存在未修复 Critical 漏洞的 MinIO 镜像切换为 RustFS 1.0.0 固定摘要；
+- 移除独立 `mc` 镜像，复用受保护的 platform-api 镜像通过标准 S3 API 幂等创建私有 bucket；
+- 增加完整基础设施摘要目录，并同步安装校验、Schema、中英文文档和发布清单。
+
 ## 0.2.1-prepared - 2026-09-30
 
 - 记录 `trial.6` 四个一方应用镜像的不可变 GHCR RepoDigest；

@@ -42,7 +42,7 @@ bash compose/manage.sh logs platform-ui
 
 ## 容量管理
 
-重点监控 Docker 数据目录、PostgreSQL、MinIO、Doris、Kafka 和 Flink 制品目录。磁盘使用率达到客户预警阈值时，应先确认增长来源，再执行经批准的归档或扩容；不得直接删除容器卷中的文件。
+重点监控 Docker 数据目录、PostgreSQL、RustFS 对象与日志卷、Doris、Kafka 和 Flink 制品目录。磁盘使用率达到客户预警阈值时，应先确认增长来源，再执行经批准的归档或扩容；不得直接删除容器卷中的文件。
 
 ## 变更管理
 

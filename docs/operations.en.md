@@ -42,7 +42,7 @@ Support requests should include the incident interval, version, relevant service
 
 ## Capacity management
 
-Monitor the Docker data root, PostgreSQL, MinIO, Doris, Kafka, and the Flink artifact directory. When disk use reaches the customer alert threshold, identify the source before an approved archive or expansion. Do not delete files directly from container volumes.
+Monitor the Docker data root, PostgreSQL, the RustFS object and log volumes, Doris, Kafka, and the Flink artifact directory. When disk use reaches the customer alert threshold, identify the source before an approved archive or expansion. Do not delete files directly from container volumes.
 
 ## Change management
 

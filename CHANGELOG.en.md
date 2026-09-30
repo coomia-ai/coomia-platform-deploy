@@ -2,6 +2,12 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.2-prepared - 2026-09-30
+
+- Replaced the Compose MinIO image, which failed the Critical-vulnerability gate, with the immutable RustFS 1.0.0 RepoDigest.
+- Removed the separate `mc` image and reused the protected platform-api image to create private buckets idempotently through the standard S3 API.
+- Added the complete infrastructure image catalog and synchronized installer validation, schema, bilingual documentation, and release manifests.
+
 ## 0.2.1-prepared - 2026-09-30
 
 - Recorded the four immutable GHCR RepoDigests for the `trial.6` first-party application images.

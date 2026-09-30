@@ -30,16 +30,38 @@ services:
     restart: unless-stopped
     networks: [mds-data]
 
-  minio:
-    image: ${MINIO_IMAGE:?set MINIO_IMAGE to the approved immutable RepoDigest}
-    container_name: coomia-minio
-    hostname: minio
-    command: server --console-address ":9001" /data
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+  object-storage-permissions:
+    image: ${OBJECT_STORAGE_IMAGE:?set OBJECT_STORAGE_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-object-storage-permissions
+    user: "0:0"
+    network_mode: "none"
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        mkdir -p /data /logs
+        chown -R 10001:10001 /data /logs
+        chmod 0750 /data /logs
     volumes:
-      - minio-data:/data
+      - object-storage-data:/data
+      - object-storage-logs:/logs
+    restart: "no"
+
+  minio:
+    image: ${OBJECT_STORAGE_IMAGE:?set OBJECT_STORAGE_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-object-storage
+    hostname: minio
+    depends_on:
+      object-storage-permissions:
+        condition: service_completed_successfully
+    environment:
+      RUSTFS_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?set OBJECT_STORAGE_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?set OBJECT_STORAGE_SECRET_KEY}
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - object-storage-data:/data
+      - object-storage-logs:/logs
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -50,22 +72,31 @@ services:
     networks: [mds-data]
 
   minio-init:
-    image: ${MINIO_MC_IMAGE:?set MINIO_MC_IMAGE to the approved immutable RepoDigest}
-    container_name: coomia-minio-init
+    image: ${PLATFORM_API_IMAGE:?set PLATFORM_API_IMAGE to the approved immutable RepoDigest}
+    container_name: coomia-object-storage-init
     depends_on:
       minio:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "-ec"]
+    entrypoint: ["python3", "-c"]
     command:
       - |
-        mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"
-        for bucket in warehouse bronze silver gold flink-state; do
-          mc mb "local/$${bucket}" --ignore-existing
-          mc anonymous set none "local/$${bucket}"
-        done
+        import os
+
+        from minio import Minio
+
+        client = Minio(
+            "minio:9000",
+            access_key=os.environ["OBJECT_STORAGE_ACCESS_KEY"],
+            secret_key=os.environ["OBJECT_STORAGE_SECRET_KEY"],
+            secure=False,
+            region="us-east-1",
+        )
+        for bucket in ("warehouse", "bronze", "silver", "gold", "flink-state"):
+            if not client.bucket_exists(bucket):
+                client.make_bucket(bucket, location="us-east-1")
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?set OBJECT_STORAGE_ACCESS_KEY}
+      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?set OBJECT_STORAGE_SECRET_KEY}
     restart: "no"
     networks: [mds-data]
 
@@ -85,8 +116,8 @@ services:
       NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_REGION: us-east-1
       NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_PATH_STYLE_ACCESS: "true"
       NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_ACCESS_KEY: urn:nessie-secret:quarkus:nessie.catalog.secrets.s3creds
-      NESSIE_CATALOG_SECRETS_S3CREDS_NAME: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER}
-      NESSIE_CATALOG_SECRETS_S3CREDS_SECRET: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      NESSIE_CATALOG_SECRETS_S3CREDS_NAME: ${OBJECT_STORAGE_ACCESS_KEY:?set OBJECT_STORAGE_ACCESS_KEY}
+      NESSIE_CATALOG_SECRETS_S3CREDS_SECRET: ${OBJECT_STORAGE_SECRET_KEY:?set OBJECT_STORAGE_SECRET_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -239,7 +270,8 @@ networks:
 
 volumes:
   postgres-data: { name: coomia-postgres-data }
-  minio-data: { name: coomia-minio-data }
+  object-storage-data: { name: coomia-object-storage-data }
+  object-storage-logs: { name: coomia-object-storage-logs }
   doris-fe-metadata: { name: coomia-doris-fe-metadata }
   doris-fe-log: { name: coomia-doris-fe-log }
   doris-be-storage: { name: coomia-doris-be-storage }

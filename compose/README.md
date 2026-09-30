@@ -2,7 +2,7 @@
 
 [English](README.en.md) | 简体中文
 
-Docker Compose 是本交付包的推荐部署方式。默认只暴露 UI 和 API；PostgreSQL、MinIO、Nessie、Doris、Kafka、Redis 与 TuGraph 仅在内部网络中可访问。
+Docker Compose 是本交付包的推荐部署方式。默认只暴露 UI 和 API；PostgreSQL、RustFS 对象存储、Nessie、Doris、Kafka、Redis 与 TuGraph 仅在内部网络中可访问。
 
 ```bash
 bash ../scripts/init-config.sh

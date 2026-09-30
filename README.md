@@ -9,12 +9,12 @@
 当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成，`trial.6` 的一方
 应用镜像已完成 GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
 [`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/)。通用配置模板仍按
-要求保持为空；完整客户包还必须写入同一版本批准的基础设施 RepoDigest，并通过最终放行后才能将
-`RELEASE_STATUS` 切换为 `GO`。
+要求保持为空；`trial.6` 的 Compose 基础设施摘要已经记录并验证，其中对象存储使用 RustFS 1.0.0。
+完整客户包仍必须通过候选包校验、空环境安装验收和最终放行后，才能将 `RELEASE_STATUS` 切换为 `GO`。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
-| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；应用镜像已发布，等待基础设施摘要与最终放行 |
+| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；镜像摘要已就绪，等待候选包与最终放行 |
 | Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 需要交付方实施支持 |
 
 ## 快速开始

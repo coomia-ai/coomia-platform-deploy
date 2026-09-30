@@ -20,7 +20,7 @@
 | platform-ui |  |  |  |
 | Flink runtime |  |  |  |
 | PostgreSQL |  |  |  |
-| MinIO / mc |  |  |  |
+| RustFS 对象存储 |  |  |  |
 | Nessie |  |  |  |
 | TuGraph |  |  |  |
 | Doris FE / BE |  |  |  |

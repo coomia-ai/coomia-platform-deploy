@@ -9,12 +9,13 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready.
 The `trial.6` first-party images have passed GHCR Public and anonymous RepoDigest-read verification and are recorded under
 [`releases/2026.09.30-trial.6/`](releases/2026.09.30-trial.6/). Generic configuration templates intentionally remain
-blank. The complete customer package still requires approved infrastructure RepoDigests and final release evidence
-before `RELEASE_STATUS` can change to `GO`.
+blank. The `trial.6` Compose infrastructure RepoDigests are now recorded and verified, with RustFS 1.0.0 providing
+object storage. The package still requires candidate verification, a clean-host installation acceptance run, and
+final release evidence before `RELEASE_STATUS` can change to `GO`.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
-| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; application images published, awaiting infrastructure digests and final approval |
+| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; image digests ready, awaiting candidate and final approval |
 | Kubernetes | API and Flink isolation reference for an existing cluster | Requires publisher-assisted implementation |
 
 ## Quick start

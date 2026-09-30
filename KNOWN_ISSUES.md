@@ -4,8 +4,11 @@
 
 ## 当前发布准备项
 
-- `trial.6` 四个应用镜像已完成 GHCR Public 可见性和匿名 RepoDigest 拉取验证，但完整基础设施镜像摘要
-  尚未全部确认；完成发布验收前，本目录状态保持 `PREPARED`。
+- `trial.6` 的应用与 Compose 基础设施镜像摘要已经确认。对象存储已从未通过 Critical 门禁的旧 MinIO
+  镜像切换为 RustFS 1.0.0；在完成空环境 Compose 安装、Nessie/Iceberg/Flink 联调和最终发布审批前，
+  本目录状态保持 `PREPARED`。
+- RustFS 使用新的 `coomia-object-storage-data` 数据卷。旧 MinIO 数据卷不能直接挂载到 RustFS；已有环境
+  如需迁移，必须执行单独设计、备份验证和对象级迁移，不能按普通原地升级处理。
 - Kubernetes 内容仅提供 API 与 Flink 隔离参考，不包含完整 UI、Ingress/TLS、监控、备份和全部基础设施安装，因此不属于标准自助交付路径。
 
 ## 产品化边界

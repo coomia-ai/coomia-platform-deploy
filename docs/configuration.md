@@ -20,7 +20,9 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 
 当前 `trial.6` 的四个一方镜像摘要见
 [`releases/2026.09.30-trial.6/application-images.env`](../releases/2026.09.30-trial.6/application-images.env)。
-该文件不包含基础设施镜像，不能单独作为完整安装配置。
+完整基础设施镜像摘要见
+[`releases/2026.09.30-trial.6/infrastructure-images.env`](../releases/2026.09.30-trial.6/infrastructure-images.env)。
+两个文件共同构成当前候选包的镜像目录，仍须经过最终发布批准。
 
 ```text
 <镜像仓库>/<镜像名称>@sha256:<64 位小写十六进制摘要>
@@ -30,7 +32,7 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 
 ## 数据库与基础设施凭据
 
-`POSTGRES_USER` 和 `POSTGRES_DB` 只能使用字母、数字和下划线。`DATABASE_URL` 必须与 PostgreSQL 配置一致。Doris 当前要求 `DORIS_USER=root`，其密码不得少于 12 个字符。其他密码由 `init-config.sh` 自动生成。
+`POSTGRES_USER` 和 `POSTGRES_DB` 只能使用字母、数字和下划线。`DATABASE_URL` 必须与 PostgreSQL 配置一致。`OBJECT_STORAGE_ACCESS_KEY` 和 `OBJECT_STORAGE_SECRET_KEY` 是 RustFS 使用的 S3 兼容凭据；应用内部仍映射为 `MINIO_*` 变量以保持 SDK 兼容。Doris 当前要求 `DORIS_USER=root`，其密码不得少于 12 个字符。其他密码由 `init-config.sh` 自动生成。
 
 ## 应用密钥
 
@@ -59,7 +61,7 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 
 ## 网络与端口
 
-`BIND_ADDRESS` 控制 UI 和 API 监听地址。生产环境应由反向代理或负载均衡器提供 TLS，并限制 API 管理端访问。PostgreSQL、Kafka、Redis、MinIO、Doris 和 TuGraph 默认不映射到主机端口。
+`BIND_ADDRESS` 控制 UI 和 API 监听地址。生产环境应由反向代理或负载均衡器提供 TLS，并限制 API 管理端访问。PostgreSQL、Kafka、Redis、RustFS、Doris 和 TuGraph 默认不映射到主机端口。
 
 `CORS_ORIGINS` 必须设置为实际访问 UI 的受信任源，例如客户正式 HTTPS 域名；多个源的格式应与该版本发布说明一致。不要在生产环境使用通配符。
 

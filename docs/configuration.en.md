@@ -20,7 +20,9 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<published-digest>
 
 The four current `trial.6` first-party digests are recorded in
 [`releases/2026.09.30-trial.6/application-images.env`](../releases/2026.09.30-trial.6/application-images.env).
-That file does not contain infrastructure images and is not a complete installation configuration.
+The complete infrastructure image catalog is recorded in
+[`releases/2026.09.30-trial.6/infrastructure-images.env`](../releases/2026.09.30-trial.6/infrastructure-images.env).
+Together, the two files define the candidate image set, which still requires final release approval.
 
 ```text
 <registry>/<image>@sha256:<64-lowercase-hex-digest>
@@ -30,7 +32,7 @@ The installer rejects tags, empty values, and non-digest references.
 
 ## Database and infrastructure credentials
 
-`POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. `init-config.sh` generates the remaining passwords.
+`POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. `OBJECT_STORAGE_ACCESS_KEY` and `OBJECT_STORAGE_SECRET_KEY` are the S3-compatible credentials used by RustFS; the application still receives mapped `MINIO_*` variables for SDK compatibility. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. `init-config.sh` generates the remaining passwords.
 
 ## Application secrets
 
@@ -59,7 +61,7 @@ The installer rejects root and system directories, symbolic links, and paths tha
 
 ## Network and ports
 
-`BIND_ADDRESS` controls the UI and API listeners. Production deployments should terminate TLS at a reverse proxy or load balancer and restrict administrative API access. PostgreSQL, Kafka, Redis, MinIO, Doris, and TuGraph are not published to the host by default.
+`BIND_ADDRESS` controls the UI and API listeners. Production deployments should terminate TLS at a reverse proxy or load balancer and restrict administrative API access. PostgreSQL, Kafka, Redis, RustFS, Doris, and TuGraph are not published to the host by default.
 
 Set `CORS_ORIGINS` to the trusted origin used to access the UI, such as the customer's production HTTPS hostname. Follow the release notes for multiple-origin syntax. Do not use a wildcard in production.
 

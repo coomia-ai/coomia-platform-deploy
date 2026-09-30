@@ -9,7 +9,7 @@
 至少备份：
 
 - PostgreSQL 数据库及恢复所需角色信息。
-- MinIO、Doris、TuGraph、Kafka、Redis 的持久化数据。
+- RustFS 对象与日志卷、Doris、TuGraph、Kafka、Redis 的持久化数据。
 - `license-state` 卷。
 - `compose/.env`、生成配置目录和当前发布材料。
 - `VERSION`、镜像 RepoDigest、备份时间和校验和。
@@ -27,6 +27,8 @@
 7. 完成健康检查和业务验收，再恢复流量。
 
 不得使用 `latest`、临时 tag 或未列入发布清单的镜像。
+
+从旧 MinIO 版本迁移到 RustFS 不属于普通原地升级。必须先完成一致性备份，在隔离环境按对象复制并校验 bucket、对象数量、校验和与访问策略，再安排独立迁移窗口。
 
 ## 回滚
 

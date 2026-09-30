@@ -59,7 +59,7 @@ An approval for one command does not authorize unrelated changes.
 ## Prohibited actions
 
 - Do not run `docker compose down --volumes`, `docker volume rm`, storage cleanup, database recreation, or filesystem deletion against customer data.
-- Do not edit data directly inside PostgreSQL, MinIO, Doris, Kafka, Redis, TuGraph, or License volumes as a troubleshooting shortcut.
+- Do not edit data directly inside PostgreSQL, object storage, Doris, Kafka, Redis, TuGraph, or License volumes as a troubleshooting shortcut.
 - Do not disable License enforcement, authentication, TLS controls, admission policies, or Flink gateway controls.
 - Do not build replacement product images or introduce a `build:` block.
 - Do not use floating image tags such as `latest`; use only publisher-approved RepoDigests.

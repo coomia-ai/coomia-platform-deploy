@@ -2,7 +2,7 @@
 
 English | [简体中文](README.md)
 
-Docker Compose is the recommended deployment path. By default, only the UI and API are exposed. PostgreSQL, MinIO, Nessie, Doris, Kafka, Redis, and TuGraph remain reachable only on internal networks.
+Docker Compose is the recommended deployment path. By default, only the UI and API are exposed. PostgreSQL, RustFS object storage, Nessie, Doris, Kafka, Redis, and TuGraph remain reachable only on internal networks.
 
 ```bash
 bash ../scripts/init-config.sh

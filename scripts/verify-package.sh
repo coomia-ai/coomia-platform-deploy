@@ -20,6 +20,7 @@ required=(
   README.md README.en.md AGENTS.md llms.txt LICENSE VERSION RELEASE_STATUS
   CHANGELOG.md CHANGELOG.en.md KNOWN_ISSUES.md KNOWN_ISSUES.en.md
   releases/2026.09.30-trial.6/application-images.env
+  releases/2026.09.30-trial.6/infrastructure-images.env
   releases/2026.09.30-trial.6/README.md releases/2026.09.30-trial.6/README.en.md
   release-manifest.example.md release-manifest.example.en.md install.sh
   compose/.env.example compose/docker-compose.yml compose/docker-compose.app.yml
@@ -128,8 +129,8 @@ else
 fi
 
 image_variables=(
-  PLATFORM_API_IMAGE PLATFORM_UI_IMAGE FLINK_LOCAL_IMAGE POSTGRES_IMAGE MINIO_IMAGE
-  MINIO_MC_IMAGE NESSIE_IMAGE TUGRAPH_IMAGE DORIS_FE_IMAGE DORIS_BE_IMAGE KAFKA_IMAGE REDIS_IMAGE
+  PLATFORM_API_IMAGE PLATFORM_UI_IMAGE FLINK_LOCAL_IMAGE POSTGRES_IMAGE OBJECT_STORAGE_IMAGE
+  NESSIE_IMAGE TUGRAPH_IMAGE DORIS_FE_IMAGE DORIS_BE_IMAGE KAFKA_IMAGE REDIS_IMAGE
 )
 for name in "${image_variables[@]}"; do
   value="$(sed -n "s/^${name}=//p" "$ROOT/compose/.env.example")"

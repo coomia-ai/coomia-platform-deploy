@@ -9,7 +9,7 @@ An upgrade is a production change. Rehearse it in an isolated environment and ob
 Back up at least:
 
 - PostgreSQL databases and role information required for recovery.
-- Persistent data for MinIO, Doris, TuGraph, Kafka, and Redis.
+- Persistent data in the RustFS object and log volumes, Doris, TuGraph, Kafka, and Redis.
 - The `license-state` volume.
 - `compose/.env`, generated configuration directories, and the current release package.
 - `VERSION`, image RepoDigests, backup time, and checksums.
@@ -27,6 +27,8 @@ Copying live container data directories is not a consistent backup. Use componen
 7. Complete health and business acceptance checks before restoring traffic.
 
 Do not use `latest`, temporary tags, or images absent from the release manifest.
+
+Migration from an earlier MinIO release to RustFS is not an in-place upgrade. Complete a consistent backup, copy objects in an isolated environment, validate buckets, object counts, checksums, and access policies, and then schedule a dedicated migration window.
 
 ## Rollback
 

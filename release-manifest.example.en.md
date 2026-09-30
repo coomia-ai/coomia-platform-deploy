@@ -20,7 +20,7 @@ English | [简体中文](release-manifest.example.md)
 | platform-ui |  |  |  |
 | Flink runtime |  |  |  |
 | PostgreSQL |  |  |  |
-| MinIO / mc |  |  |  |
+| RustFS object storage |  |  |  |
 | Nessie |  |  |  |
 | TuGraph |  |  |  |
 | Doris FE / BE |  |  |  |

@@ -4,9 +4,11 @@ English | [简体中文](KNOWN_ISSUES.md)
 
 ## Current release-preparation items
 
-- The four `trial.6` application images have passed GHCR Public visibility and anonymous RepoDigest pull verification,
-  but the complete infrastructure image set is not yet fully approved. This repository remains `PREPARED` until
-  release acceptance is complete.
+- The `trial.6` application and Compose infrastructure RepoDigests are confirmed. Object storage moved from the old
+  MinIO image that failed the Critical gate to RustFS 1.0.0. This repository remains `PREPARED` until clean-host
+  Compose installation, Nessie/Iceberg/Flink integration, and final release approval are complete.
+- RustFS uses the new `coomia-object-storage-data` volume. An existing MinIO volume must not be mounted directly into
+  RustFS; migration requires a separately designed, backup-verified object-level migration rather than an in-place upgrade.
 - Kubernetes content is an API and Flink isolation reference only. It does not include the complete UI, Ingress/TLS, monitoring, backup, or all infrastructure components and is not the standard self-service delivery path.
 
 ## Productized boundary

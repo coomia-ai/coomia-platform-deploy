@@ -25,7 +25,7 @@ Keep Docker, the Linux kernel, and third-party images on supported versions. Lim
 
 ## Data protection
 
-MinIO buckets deny anonymous access by default. Apply customer data-classification, encryption, retention, and destruction policies to backups, logs, and exports. Troubleshooting must never upload production data to an unapproved system.
+RustFS buckets are created without anonymous policies. Apply customer data-classification, encryption, retention, and destruction policies to backups, logs, and exports. Troubleshooting must never upload production data to an unapproved system.
 
 ## Vulnerability response
 

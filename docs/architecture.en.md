@@ -13,7 +13,7 @@ Users / customer reverse proxy
         +-- platform-api :8050
                   |
         +---------+-------------------------------+
-        | PostgreSQL | MinIO | Nessie | TuGraph  |
+        | PostgreSQL | RustFS | Nessie | TuGraph |
         | Doris FE/BE | Kafka | Redis             |
         +-----------------------------------------+
                   |
@@ -25,7 +25,7 @@ The customer reverse proxy owns the production hostname, TLS certificates, acces
 ## Network segmentation
 
 - `mds-frontend`: UI-to-API communication.
-- `mds-data`: API access to PostgreSQL, MinIO, Nessie, TuGraph, and Doris.
+- `mds-data`: API access to PostgreSQL, RustFS S3, Nessie, TuGraph, and Doris.
 - `mds-streaming`: API access to Kafka and Redis.
 - `coomia-flink-control`: internal API-to-Flink-gateway control network.
 
@@ -42,7 +42,7 @@ Production deployments normally allow only the reverse proxy to reach these port
 
 ## Persistence boundary
 
-Compose named volumes store PostgreSQL, MinIO, Doris, Kafka, Redis, TuGraph, and License state. Three customer directories store Flink artifacts, generated configuration, and project-scoped intake secrets. Removing containers does not remove data, but deleting named volumes causes irreversible data loss.
+Compose named volumes store PostgreSQL, RustFS objects and logs, Doris, Kafka, Redis, TuGraph, and License state. Three customer directories store Flink artifacts, generated configuration, and project-scoped intake secrets. Removing containers does not remove data, but deleting named volumes causes irreversible data loss.
 
 ## Availability boundary
 

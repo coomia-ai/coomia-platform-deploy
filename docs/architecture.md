@@ -13,7 +13,7 @@
         +-- platform-api :8050
                   |
         +---------+-------------------------------+
-        | PostgreSQL | MinIO | Nessie | TuGraph  |
+        | PostgreSQL | RustFS | Nessie | TuGraph |
         | Doris FE/BE | Kafka | Redis             |
         +-----------------------------------------+
                   |
@@ -25,7 +25,7 @@
 ## 网络分区
 
 - `mds-frontend`：UI 与 API 通信。
-- `mds-data`：PostgreSQL、MinIO、Nessie、TuGraph、Doris 与 API 通信。
+- `mds-data`：PostgreSQL、RustFS S3、Nessie、TuGraph、Doris 与 API 通信。
 - `mds-streaming`：Kafka、Redis 与 API 通信。
 - `coomia-flink-control`：API 与 Flink Docker 网关的内部控制网络。
 
@@ -42,7 +42,7 @@
 
 ## 持久化边界
 
-Compose 命名卷保存 PostgreSQL、MinIO、Doris、Kafka、Redis、TuGraph 和 License 状态。三个客户目录保存 Flink 制品、生成配置和项目级接入密钥。容器删除不等于数据删除，但删除命名卷会造成不可逆数据丢失。
+Compose 命名卷保存 PostgreSQL、RustFS 对象、RustFS 日志、Doris、Kafka、Redis、TuGraph 和 License 状态。三个客户目录保存 Flink 制品、生成配置和项目级接入密钥。容器删除不等于数据删除，但删除命名卷会造成不可逆数据丢失。
 
 ## 可用性边界
 
