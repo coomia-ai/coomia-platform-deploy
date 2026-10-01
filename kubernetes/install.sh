@@ -86,6 +86,10 @@ kubectl -n mds-app get secret platform-api-secret >/dev/null || {
   echo "error: required application Secret 'platform-api-secret' is missing from mds-app" >&2
   exit 1
 }
+kubectl -n data-infra get secret doris-root-secret >/dev/null || {
+  echo "error: required Doris Secret 'doris-root-secret' is missing from data-infra" >&2
+  exit 1
+}
 for key in DATABASE_URL MINIO_ACCESS_KEY MINIO_SECRET_KEY S3_ACCESS_KEY S3_SECRET_KEY \
   DORIS_PASSWORD REDIS_PASSWORD TUGRAPH_PASSWORD JWT_SECRET DELIVERY_REPORT_HMAC_SECRET; do
   value="$(kubectl -n mds-app get secret platform-api-secret -o "jsonpath={.data.${key}}")"
@@ -94,6 +98,14 @@ for key in DATABASE_URL MINIO_ACCESS_KEY MINIO_SECRET_KEY S3_ACCESS_KEY S3_SECRE
     exit 1
   fi
 done
+app_doris_hash="$(kubectl -n mds-app get secret platform-api-secret \
+  -o jsonpath='{.data.DORIS_PASSWORD}' | base64 --decode | sha256sum | awk '{print $1}')"
+infra_doris_hash="$(kubectl -n data-infra get secret doris-root-secret \
+  -o jsonpath='{.data.password}' | base64 --decode | sha256sum | awk '{print $1}')"
+if [[ "$app_doris_hash" != "$infra_doris_hash" ]]; then
+  echo "error: platform-api-secret DORIS_PASSWORD differs from data-infra/doris-root-secret" >&2
+  exit 1
+fi
 jwt_encoded="$(kubectl -n mds-app get secret platform-api-secret -o 'jsonpath={.data.JWT_SECRET}')"
 jwt_secret="$(printf '%s' "$jwt_encoded" | base64 --decode)"
 if [[ ${#jwt_secret} -lt 32 ]] \

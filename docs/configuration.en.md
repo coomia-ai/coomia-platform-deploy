@@ -32,7 +32,9 @@ The installer rejects tags, empty values, and non-digest references.
 
 ## Database and infrastructure credentials
 
-`POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. `OBJECT_STORAGE_ACCESS_KEY` and `OBJECT_STORAGE_SECRET_KEY` are the S3-compatible credentials used by RustFS; the application still receives mapped `MINIO_*` variables for SDK compatibility. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. `init-config.sh` generates the remaining passwords.
+`POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. `OBJECT_STORAGE_ACCESS_KEY` and `OBJECT_STORAGE_SECRET_KEY` are the S3-compatible credentials used by RustFS; the application still receives mapped `MINIO_*` variables for SDK compatibility. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. The Kubernetes installer requires `mds-app/platform-api-secret.DORIS_PASSWORD` to exactly match `data-infra/doris-root-secret.password`; the Compose installer performs a real Doris login with the credentials visible inside the API container after startup. `init-config.sh` generates the remaining passwords.
+
+The UI image always calls the backend through same-origin `/api` and reads `INTERNAL_API_URL` at container runtime. The Compose installer requests `/api/v1/license/status` from inside the UI container and fails installation when the proxy is broken; container Ready state alone is not acceptance evidence.
 
 ## Application secrets
 

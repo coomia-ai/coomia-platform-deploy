@@ -179,6 +179,20 @@ compose=(docker compose --env-file "$ENV_FILE" "${files[@]}")
 "${compose[@]}" config --quiet
 "${compose[@]}" up -d --wait --wait-timeout "${INSTALL_WAIT_TIMEOUT_SECONDS:-600}"
 
+"${compose[@]}" exec -T platform-api python -c \
+  'import os, pymysql; connection = pymysql.connect(host=os.environ["DORIS_HOST"], port=int(os.environ["DORIS_PORT"]), user=os.environ["DORIS_USER"], password=os.environ["DORIS_PASSWORD"], connect_timeout=5, read_timeout=5, write_timeout=5); cursor = connection.cursor(); cursor.execute("SELECT 1"); connection.close()' \
+  >/dev/null 2>&1 || {
+    echo "error: platform-api credentials cannot authenticate to Doris" >&2
+    exit 1
+  }
+
+"${compose[@]}" exec -T platform-ui node -e \
+  'fetch("http://127.0.0.1:3050/api/v1/license/status").then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1))' \
+  >/dev/null 2>&1 || {
+    echo "error: platform-ui runtime API proxy cannot reach platform-api" >&2
+    exit 1
+  }
+
 echo "installation complete"
 echo "UI:  http://localhost:${PLATFORM_UI_PORT:-3000}"
 echo "API: http://localhost:${PLATFORM_API_PORT:-8050}/health"
