@@ -10,8 +10,9 @@
 一方镜像已完成加密构建、安全门禁、GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
 [`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/)。厂商隔离 K8s 全栈已验证修正后的
 PostgreSQL 16.14 和 TuGraph 4.5.1 摘要，以及 RustFS、Nessie、Doris、Kafka、Redis、API 和 UI。
-客户 Compose 仍需完成干净主机安装、1 天 License 生命周期、Flink 到期自动暂停和最终放行，之后才能
-将 `RELEASE_STATUS` 切换为 `GO`。`trial.6` 旧候选包含不兼容 TuGraph，已作废且不得交付。
+2026-10-02 的隔离环境验收已覆盖 1 天 License 生命周期，以及到期时生成最终 savepoint 并自动暂停
+Flink 作业。客户 Compose 仍需完成干净 Linux 主机的完整安装与业务冒烟验收，之后才能将
+`RELEASE_STATUS` 切换为 `GO`。`trial.6` 旧候选包含不兼容 TuGraph，已作废且不得交付。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|

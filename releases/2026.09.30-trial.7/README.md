@@ -15,5 +15,6 @@ RepoDigest 回拉后的 Critical/secret 门禁、CycloneDX SBOM 生成和 GHCR �
 - 四个 GHCR 镜像均为 Public，并已按 RepoDigest 完成无登录凭据的匿名读取验证；
 - 厂商隔离 K8s 全栈已验证 PostgreSQL、RustFS、Nessie、TuGraph 4.5.1、Doris、Kafka、Redis、API 和 UI；
 - API 两个 Worker 使用同一稳定机器指纹，授权状态接口正常；
-- 根目录状态仍为 `PREPARED`，客户 Compose 干净主机安装、1 天 License 生命周期和 Flink 到期自动暂停仍需完成；
+- 1 天 License 生命周期、最终 savepoint 和 Flink 到期自动暂停已于 2026-10-02 在厂商隔离环境通过；
+- 根目录状态仍为 `PREPARED`，客户 Compose 干净 Linux 主机安装和业务冒烟验收仍需完成；
 - Kubernetes 仍为参考实施，不属于自助交付 `GO` 范围。

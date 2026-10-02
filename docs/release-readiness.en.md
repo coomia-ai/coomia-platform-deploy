@@ -2,7 +2,7 @@
 
 English | [简体中文](release-readiness.md)
 
-`RELEASE_STATUS` is the package release gate. `PREPARED` means the structure and documentation are ready but the release still lacks approved images or evidence. Only the publisher may change it to `GO` after review.
+`RELEASE_STATUS` is the package release gate. `PREPARED` means the layout, documentation, and candidate images may be ready, but one or more final acceptance records are still missing. Only the publisher may change it to `GO` after review.
 
 ## Release admission criteria
 
@@ -18,7 +18,13 @@ Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization
 
 ## Current state
 
-This directory is currently `PREPARED`. Compose image fields intentionally remain empty, and Kubernetes is a reference implementation. It is suitable for completing release preparation but must not be represented as an approved production release without formal images and acceptance evidence.
+This directory is currently `PREPARED`. Image fields in the generic `compose/.env.example` intentionally remain empty;
+the approved `trial.7` candidate digests are recorded under `releases/2026.09.30-trial.7/` and are entered into the
+customer's private `compose/.env` after initialization. Image security gates, anonymous pulls, the vendor-isolated
+Kubernetes full stack, one-day License expiry, and automatic Flink pause after a final savepoint have evidence.
+Clean-host Linux Compose installation and business smoke acceptance are still outstanding. Kubernetes remains a
+reference implementation. The package must not be represented as an approved production release or offered for
+self-service installation in its current state.
 
 ## Evidence retention
 

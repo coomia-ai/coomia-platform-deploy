@@ -7,7 +7,9 @@ English | [简体中文](CHANGELOG.md)
 - Published the protected API image with the multi-worker first-boot fingerprint race fix and synchronized immutable UI, Flink Local, and Flink K8s digests.
 - Passed pre-push and post-push security gates, generated SBOMs, and verified credential-free anonymous reads for all four GHCR packages.
 - Updated PostgreSQL 16.14 and TuGraph 4.5.1 digests and recorded vendor-isolated Kubernetes full-stack acceptance.
-- Kept the package `PREPARED` pending clean-host Compose, one-day License expiry, and automatic Flink pause acceptance.
+- Passed the one-day License expiry, final-savepoint, and automatic Flink pause acceptance in the vendor-isolated
+  environment on 2026-10-02. The package remains `PREPARED` pending clean-host Linux Compose installation and
+  business smoke acceptance.
 
 ## 0.2.2-prepared - 2026-09-30
 
@@ -31,7 +33,7 @@ English | [简体中文](CHANGELOG.md)
 - Added static customer-package security checks and release-state gates.
 - Added `AGENTS.md`, `llms.txt`, bilingual AI operations guidance, a machine-readable configuration schema, and a redacted diagnostic collector.
 
-The package is `PREPARED`; this does not mean formal images have been inserted or production release approval has been granted.
+The package is `PREPARED`; this does not mean production release approval has been granted.
 
 ## 0.1.0-preview - 2026-09-28
 

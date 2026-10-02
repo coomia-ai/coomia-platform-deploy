@@ -7,7 +7,8 @@
 - 发布修复多 Worker 首次启动机器指纹竞态的加密 API 镜像，并同步 UI、Flink Local、Flink K8s 不可变摘要；
 - 四个 GHCR 包完成推送前和推送后安全门禁、SBOM 生成及无凭据匿名读取验证；
 - 更新 PostgreSQL 16.14 与 TuGraph 4.5.1 摘要，记录厂商隔离 K8s 全栈验收通过；
-- 保持 `PREPARED`，等待客户 Compose 干净主机、1 天 License 到期和 Flink 自动暂停验收。
+- 2026-10-02 在厂商隔离环境通过 1 天 License 到期、最终 savepoint 和 Flink 自动暂停验收；保持
+  `PREPARED`，等待客户 Compose 干净 Linux 主机完整安装和业务冒烟验收。
 
 ## 0.2.2-prepared - 2026-09-30
 
@@ -31,7 +32,7 @@
 - 增加客户包静态安全检查和发布状态门禁。
 - 增加 `AGENTS.md`、`llms.txt`、中英文 AI 运维指南、机器可读配置 Schema 和脱敏诊断脚本。
 
-当前状态为 `PREPARED`，不代表已填入正式镜像或已通过客户生产发布审批。
+当前状态为 `PREPARED`，不代表已通过客户生产发布审批。
 
 ## 0.1.0-preview - 2026-09-28
 

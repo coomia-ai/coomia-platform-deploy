@@ -16,5 +16,6 @@ Current boundary:
 - All four GHCR images are Public and passed credential-free anonymous reads by RepoDigest.
 - Vendor-isolated Kubernetes acceptance covered PostgreSQL, RustFS, Nessie, TuGraph 4.5.1, Doris, Kafka, Redis, API, and UI.
 - Both API workers use the same stable machine fingerprint, and the license status endpoint is healthy.
-- The repository remains `PREPARED`; clean-host Compose installation, the one-day License lifecycle, and automatic Flink pause on expiry remain open.
+- The one-day License lifecycle, final savepoint, and automatic Flink pause on expiry passed in the vendor-isolated environment on 2026-10-02.
+- The repository remains `PREPARED`; clean-host Linux Compose installation and business smoke acceptance remain open.
 - Kubernetes remains a reference implementation and is not a self-service `GO` path.

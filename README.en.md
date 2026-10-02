@@ -10,9 +10,10 @@ The package is currently `PREPARED`. The Docker Compose layout, installer, and c
 The four protected `trial.7` first-party images passed security gates, GHCR Public publication, and anonymous
 RepoDigest reads; they are recorded under [`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/).
 Vendor-isolated Kubernetes acceptance covered the corrected PostgreSQL 16.14 and TuGraph 4.5.1 digests together with
-RustFS, Nessie, Doris, Kafka, Redis, API, and UI. Clean-host Compose installation, the one-day License lifecycle,
-automatic Flink pause on expiry, and final release approval remain required before `RELEASE_STATUS` can change to
-`GO`. The incompatible `trial.6` candidate is invalid and must not be delivered.
+RustFS, Nessie, Doris, Kafka, Redis, API, and UI. Isolated acceptance on 2026-10-02 also covered the one-day License
+lifecycle and the final-savepoint automatic Flink pause on expiry. Clean-host Linux Compose installation and business
+smoke acceptance remain required before `RELEASE_STATUS` can change to `GO`. The incompatible `trial.6` candidate is
+invalid and must not be delivered.
 
 | Deployment path | Intended use | Status |
 |---|---|---|

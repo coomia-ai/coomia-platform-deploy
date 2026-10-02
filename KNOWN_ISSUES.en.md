@@ -6,8 +6,9 @@ English | [简体中文](KNOWN_ISSUES.md)
 
 - The `trial.7` first-party images and vendor-isolated Kubernetes full stack passed validation, including the stable
   machine-fingerprint fix, PostgreSQL 16.14, and TuGraph 4.5.1. Customer Compose uses a separate Apache Kafka image
-  contract and still requires clean-host Linux installation, Nessie/Iceberg/Flink, one-day License expiry, and
-  automatic-pause acceptance. The repository therefore remains `PREPARED`.
+  contract and still requires clean-host Linux installation plus Nessie/Iceberg/Flink and core-business smoke
+  acceptance. The one-day License expiry, final savepoint, and automatic Flink pause passed in the vendor-isolated
+  environment on 2026-10-02 and are no longer separate blockers. The repository therefore remains `PREPARED`.
 - The old `trial.6` candidate contains TuGraph 3.5.0 without the required Bolt interface and must not be delivered.
 - RustFS uses the new `coomia-object-storage-data` volume. An existing MinIO volume must not be mounted directly into
   RustFS; migration requires a separately designed, backup-verified object-level migration rather than an in-place upgrade.
