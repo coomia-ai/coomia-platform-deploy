@@ -10,5 +10,7 @@ Flink Local 与 Flink K8s 镜像内的 Unified Intake JAR 摘要均为
 `d04fe2680409abdf38891817c7444e0fb68281b6862afc205170713663cb3125`，SQL Runner JAR 摘要均为
 `8694f78b9d10b71c7b83e550c132572e1fe140a29520c8c035a207efdc74c491`。
 
-当前边界：新的 `trial.11` Flink 作业、核心业务回归和正式安全扫描/SBOM 证据归档仍待完成；Compose
-验证已暂停；根目录与 Kubernetes 状态保持 `PREPARED` / `REFERENCE_ONLY`，本目录不授予交付 `GO`。
+新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，checkpoint 从 17 增至 23 且失败数未增长，
+对象存储中存在 checkpoint 元数据与共享对象，最终 savepoint 后成功暂停。核心业务回归被项目级凭据
+自动化缺失阻断；正式安全扫描/SBOM 证据归档仍待完成，Compose 验证已暂停。根目录与 Kubernetes
+状态保持 `PREPARED` / `REFERENCE_ONLY`，本目录不授予交付 `GO`。

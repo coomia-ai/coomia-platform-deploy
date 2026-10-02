@@ -4,10 +4,14 @@
 
 ## 当前发布准备项
 
-- `trial.11` API/UI 已在厂商隔离 K8s 环境运行，UI 代理、API 健康、Doris 登录和 Flink Local/K8s
-  JAR 一致性已通过；新 Flink 作业与核心业务回归仍待完成。Docker Compose 验证已暂停，状态保持
-  `PREPARED`。此前 `trial.7` 的 1 天 License 到期、最终 savepoint 和自动暂停证据继续保留，但不能
-  替代 `trial.11` 运行时验收。
+- `trial.11` API/UI 已在厂商隔离 K8s 环境运行，License 激活、UI 代理、API 健康、Doris 登录和
+  Flink Local/K8s JAR 一致性已通过。新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，
+  checkpoint 持续增长，并通过最终 savepoint 暂停。
+- 核心业务验收被项目级凭据门禁阻断。新项目正确进入 `CREDENTIALS_REQUIRED`，但当前客户包没有自动
+  创建 Doris、对象存储和 TuGraph 最小权限主体及其 Kubernetes Secret 的工具。手工只创建 Secret
+  不能证明后端主体真实存在，也不能作为自助交付方案。状态继续保持 `PREPARED` / `REFERENCE_ONLY`。
+- Docker Compose 验证已暂停。此前 `trial.7` 的 1 天 License 到期、最终 savepoint 和自动暂停证据继续
+  保留，但不能替代 `trial.11` 核心业务验收。
 - `trial.6` 旧候选包含 TuGraph 3.5.0，缺少平台所需 Bolt 接口，必须废弃且不得交付。
 - RustFS 使用新的 `coomia-object-storage-data` 数据卷。旧 MinIO 数据卷不能直接挂载到 RustFS；已有环境
   如需迁移，必须执行单独设计、备份验证和对象级迁移，不能按普通原地升级处理。

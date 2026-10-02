@@ -8,14 +8,17 @@
 
 当前状态为 `PREPARED`。`trial.11` 四个一方镜像的公开 RepoDigest 已完成匿名读取验证，摘要记录在
 [`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/)。厂商隔离 K8s 环境已运行 `trial.11`
-API 和 UI，并验证 UI 代理、API 健康和 Doris 登录；Flink Local/K8s 镜像内的两个运行 JAR 摘要一致。
-新的 `trial.11` Flink 作业与核心业务回归仍待完成，因此 Kubernetes 保持 `REFERENCE_ONLY`。
-Docker Compose 验证已暂停，既有 `trial.7` 候选也未获得交付 `GO`。`trial.6` 已作废且不得交付。
+API 和 UI，并验证 UI 代理、API 健康和 Doris 登录；新签发 License 已成功激活并同步到多 Worker。
+使用固定 RepoDigest 的新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，checkpoint 持续增长，
+并通过最终 savepoint 暂停。核心业务回归随后被项目级凭据门禁阻断：新项目保持
+`CREDENTIALS_REQUIRED`，当前交付包还不能自动创建 Doris、对象存储和 TuGraph 的最小权限主体及绑定
+Secret。因此 Kubernetes 继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，既有 `trial.7`
+候选也未获得交付 `GO`。`trial.6` 已作废且不得交付。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
 | Docker Compose | 单机生产、PoC 和中小规模私有部署 | 验证暂停；不得交付 |
-| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | trial.11 验收中；需要交付方实施支持 |
+| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | License/Flink 已通过；项目凭据自动化阻断交付 |
 
 ## 快速开始
 

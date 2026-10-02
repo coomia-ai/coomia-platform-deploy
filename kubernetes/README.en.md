@@ -7,8 +7,11 @@ This directory provides a security reference for platform-api and Flink workload
 Its current status is `REFERENCE_ONLY`. Do not apply it directly to a customer production cluster without a joint review with the publisher. The installer runs only after `KUBERNETES_STATUS` is changed to `GO`.
 
 The current `trial.11` candidate digests are recorded under
-[`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/). API/UI, Doris authentication, and Flink image
-JAR equality passed; a new Flink job and core-business regression remain pending.
+[`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/). API/UI, License activation, Doris authentication,
+and Flink image JAR equality passed. A fresh Flink job passed runtime, checkpoint, and final-savepoint acceptance.
+Core-business regression is blocked at the project credential gate: this reference cannot yet provision isolated
+least-privilege Doris, object-storage, and TuGraph principals plus the bound Secret for each project, so it must not be
+changed to `GO`.
 
 Included material:
 
