@@ -6,6 +6,10 @@ This directory provides a security reference for platform-api and Flink workload
 
 Its current status is `REFERENCE_ONLY`. Do not apply it directly to a customer production cluster without a joint review with the publisher. The installer runs only after `KUBERNETES_STATUS` is changed to `GO`.
 
+The current `trial.11` candidate digests are recorded under
+[`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/). API/UI, Doris authentication, and Flink image
+JAR equality passed; a new Flink job and core-business regression remain pending.
+
 Included material:
 
 - `10-platform-api.yaml`: API, License PVC, ServiceAccount, and Flink control-plane RBAC;

@@ -21,7 +21,7 @@ Primary documentation:
 - Installation: docs/getting-started.md and docs/getting-started.en.md
 - Architecture: docs/architecture.md and docs/architecture.en.md
 - Configuration: docs/configuration.md and docs/configuration.en.md
-- Current application and infrastructure image catalog: releases/2026.09.30-trial.7/README.md and README.en.md
+- Current application and infrastructure image catalog: releases/2026.10.01-trial.11/README.md and README.en.md
 - Operations: docs/operations.md and docs/operations.en.md
 - License: docs/license.md and docs/license.en.md
 - Upgrade and recovery: docs/upgrade-and-backup.md and docs/upgrade-and-backup.en.md

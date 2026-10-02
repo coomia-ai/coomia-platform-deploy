@@ -6,19 +6,17 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 
 ## Release status
 
-The package is currently `PREPARED`. The Docker Compose layout, installer, and customer documentation are ready.
-The four protected `trial.7` first-party images passed security gates, GHCR Public publication, and anonymous
-RepoDigest reads; they are recorded under [`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/).
-Vendor-isolated Kubernetes acceptance covered the corrected PostgreSQL 16.14 and TuGraph 4.5.1 digests together with
-RustFS, Nessie, Doris, Kafka, Redis, API, and UI. Isolated acceptance on 2026-10-02 also covered the one-day License
-lifecycle and the final-savepoint automatic Flink pause on expiry. Clean-host Linux Compose installation and business
-smoke acceptance remain required before `RELEASE_STATUS` can change to `GO`. The incompatible `trial.6` candidate is
-invalid and must not be delivered.
+The package is currently `PREPARED`. Anonymous reads verified the four public `trial.11` first-party RepoDigests,
+recorded under [`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/). The vendor-isolated Kubernetes
+environment runs the `trial.11` API and UI; UI proxying, API health, and Doris authentication passed. The two runtime
+JARs are byte-identical across the Flink Local and Kubernetes images. A new `trial.11` Flink job and core-business
+regression are still pending, so Kubernetes remains `REFERENCE_ONLY`. Docker Compose validation is paused, and the
+existing `trial.7` candidate has not received delivery `GO`. The incompatible `trial.6` candidate remains invalid.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
-| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Recommended; trial.7 awaits clean-host acceptance and final approval |
-| Kubernetes | API and Flink isolation reference for an existing cluster | Requires publisher-assisted implementation |
+| Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Validation paused; not deliverable |
+| Kubernetes | API and Flink isolation reference for an existing cluster | trial.11 acceptance in progress; publisher assistance required |
 
 ## Quick start
 

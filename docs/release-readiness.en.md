@@ -18,13 +18,11 @@ Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization
 
 ## Current state
 
-This directory is currently `PREPARED`. Image fields in the generic `compose/.env.example` intentionally remain empty;
-the approved `trial.7` candidate digests are recorded under `releases/2026.09.30-trial.7/` and are entered into the
-customer's private `compose/.env` after initialization. Image security gates, anonymous pulls, the vendor-isolated
-Kubernetes full stack, one-day License expiry, and automatic Flink pause after a final savepoint have evidence.
-Clean-host Linux Compose installation and business smoke acceptance are still outstanding. Kubernetes remains a
-reference implementation. The package must not be represented as an approved production release or offered for
-self-service installation in its current state.
+This directory is currently `PREPARED`. The `trial.11` candidate digests are recorded under
+`releases/2026.10.01-trial.11/`. Anonymous reads, isolated Kubernetes API/UI, Doris login, and equality of the Flink
+runtime JARs have evidence. A new Flink job, core-business regression, and formal security/SBOM evidence retention are
+still pending. Docker Compose validation is paused. Kubernetes remains a reference implementation, and the package
+must not be represented as an approved production release or offered for self-service installation.
 
 ## Evidence retention
 

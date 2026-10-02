@@ -18,11 +18,10 @@
 
 ## 当前状态
 
-本目录当前为 `PREPARED`。通用 `compose/.env.example` 的镜像字段有意留空；`trial.7` 已批准候选摘要记录在
-`releases/2026.09.30-trial.7/`，由客户在初始化后的私有 `compose/.env` 中配置。镜像安全门禁、匿名拉取、
-厂商隔离 K8s 全栈、1 天 License 到期和 Flink 最终 savepoint 后自动暂停均已有验证证据；客户 Compose
-干净 Linux 主机完整安装和业务冒烟验收尚未完成。Kubernetes 仍为参考实现。当前包不得对客户宣称为
-已批准生产版本，也不得提供自助安装下载。
+本目录当前为 `PREPARED`。`trial.11` 候选摘要记录在 `releases/2026.10.01-trial.11/`。匿名读取、隔离
+K8s API/UI、Doris 登录和 Flink 镜像内 JAR 一致性已有证据；新 Flink 作业、核心业务回归和正式安全/SBOM
+证据归档仍待完成。Docker Compose 验证已暂停。Kubernetes 仍为参考实现，当前包不得宣称为已批准
+生产版本，也不得提供自助安装下载。
 
 ## 证据归档
 

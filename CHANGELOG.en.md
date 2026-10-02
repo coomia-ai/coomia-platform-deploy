@@ -2,6 +2,12 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.4-prepared - 2026-10-02
+
+- Added immutable GHCR digests and artifact hashes for the four `trial.11` first-party application images.
+- Validated the API/UI, UI proxy, Doris login, and Flink Local/Kubernetes JAR equality in the vendor-isolated Kubernetes environment.
+- Compose validation is paused, and a new Flink job plus core-business regression are still pending, so the package remains `PREPARED` / `REFERENCE_ONLY`.
+
 ## 0.2.3-prepared - 2026-09-30
 
 - Published the protected API image with the multi-worker first-boot fingerprint race fix and synchronized immutable UI, Flink Local, and Flink K8s digests.

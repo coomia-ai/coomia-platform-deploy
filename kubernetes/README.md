@@ -6,6 +6,9 @@
 
 当前状态为 `REFERENCE_ONLY`。未经交付方联合评审，不应直接应用到客户生产集群。安装器只有在 `KUBERNETES_STATUS=GO` 后才会执行。
 
+当前 `trial.11` 候选摘要见 [`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/)。API/UI、
+Doris 登录和 Flink 镜像 JAR 一致性已经验证；新的 Flink 作业与核心业务回归仍待完成。
+
 现有内容包括：
 
 - `10-platform-api.yaml`：API、License PVC、ServiceAccount 和 Flink 控制面 RBAC；

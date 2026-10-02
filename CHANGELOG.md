@@ -2,6 +2,12 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.4-prepared - 2026-10-02
+
+- 新增 `trial.11` 四个一方应用镜像的不可变 GHCR 摘要和对应制品哈希；
+- 在厂商隔离 K8s 环境完成 API/UI、UI 代理、Doris 登录及 Flink Local/K8s JAR 一致性验证；
+- Docker Compose 验证暂停，新的 Flink 作业和核心业务回归仍待完成，因此继续保持 `PREPARED` / `REFERENCE_ONLY`。
+
 ## 0.2.3-prepared - 2026-09-30
 
 - 发布修复多 Worker 首次启动机器指纹竞态的加密 API 镜像，并同步 UI、Flink Local、Flink K8s 不可变摘要；

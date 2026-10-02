@@ -6,18 +6,16 @@
 
 ## 当前发布状态
 
-当前状态为 `PREPARED`：Docker Compose 交付结构、安装脚本和客户文档已经准备完成。`trial.7` 的四个
-一方镜像已完成加密构建、安全门禁、GHCR Public 与匿名 RepoDigest 读取验证，摘要记录在
-[`releases/2026.09.30-trial.7/`](releases/2026.09.30-trial.7/)。厂商隔离 K8s 全栈已验证修正后的
-PostgreSQL 16.14 和 TuGraph 4.5.1 摘要，以及 RustFS、Nessie、Doris、Kafka、Redis、API 和 UI。
-2026-10-02 的隔离环境验收已覆盖 1 天 License 生命周期，以及到期时生成最终 savepoint 并自动暂停
-Flink 作业。客户 Compose 仍需完成干净 Linux 主机的完整安装与业务冒烟验收，之后才能将
-`RELEASE_STATUS` 切换为 `GO`。`trial.6` 旧候选包含不兼容 TuGraph，已作废且不得交付。
+当前状态为 `PREPARED`。`trial.11` 四个一方镜像的公开 RepoDigest 已完成匿名读取验证，摘要记录在
+[`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/)。厂商隔离 K8s 环境已运行 `trial.11`
+API 和 UI，并验证 UI 代理、API 健康和 Doris 登录；Flink Local/K8s 镜像内的两个运行 JAR 摘要一致。
+新的 `trial.11` Flink 作业与核心业务回归仍待完成，因此 Kubernetes 保持 `REFERENCE_ONLY`。
+Docker Compose 验证已暂停，既有 `trial.7` 候选也未获得交付 `GO`。`trial.6` 已作废且不得交付。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
-| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 推荐；trial.7 候选等待干净主机验收与最终放行 |
-| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 需要交付方实施支持 |
+| Docker Compose | 单机生产、PoC 和中小规模私有部署 | 验证暂停；不得交付 |
+| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | trial.11 验收中；需要交付方实施支持 |
 
 ## 快速开始
 
