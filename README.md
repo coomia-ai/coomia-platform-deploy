@@ -6,19 +6,16 @@
 
 ## 当前发布状态
 
-当前状态为 `PREPARED`。`trial.11` 四个一方镜像的公开 RepoDigest 已完成匿名读取验证，摘要记录在
-[`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/)。厂商隔离 K8s 环境已运行 `trial.11`
-API 和 UI，并验证 UI 代理、API 健康和 Doris 登录；新签发 License 已成功激活并同步到多 Worker。
-使用固定 RepoDigest 的新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，checkpoint 持续增长，
-并通过最终 savepoint 暂停。项目级 Doris、对象存储和 TuGraph 凭据的自动创建、可恢复轮换、删除清理
-及绑定 Secret 已在源码和部署清单中实现；新的候选镜像尚未构建并完成隔离 K8s 运行验收，因此
-Kubernetes 继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，既有 `trial.7`
-候选也未获得交付 `GO`。`trial.6` 已作废且不得交付。
+当前状态为 `PREPARED`。`trial.14` API 热修候选及沿用的 trial.11 UI/Flink RepoDigest 记录在
+[`releases/2026.10.03-trial.14/`](releases/2026.10.03-trial.14/)。厂商隔离 K8s 环境已通过 UI 代理、API
+健康、License 激活、Flink 运行/checkpoint/savepoint，以及 Doris、对象存储和 TuGraph 项目凭据自动
+创建、失败恢复、轮换、跨项目隔离、旧代次吊销和删除清理验收。Kubernetes 因完整核心业务、备份恢复和
+客户基础设施产品化尚未完成而继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，`trial.6` 已作废。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
 | Docker Compose | 单机生产、PoC 和中小规模私有部署 | 验证暂停；不得交付 |
-| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 自动化已实现；新镜像与运行验收待完成 |
+| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 项目凭据生命周期通过；核心业务与交付产品化待完成 |
 
 ## 快速开始
 

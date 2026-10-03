@@ -6,21 +6,18 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 
 ## Release status
 
-The package is currently `PREPARED`. Anonymous reads verified the four public `trial.11` first-party RepoDigests,
-recorded under [`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/). The vendor-isolated Kubernetes
-environment runs the `trial.11` API and UI; UI proxying, API health, and Doris authentication passed. A newly issued
-License activated successfully and synchronized across API workers. A fresh Flink job using the immutable `trial.11`
-RepoDigest reached `RUNNING/READY/STABLE`, advanced checkpoints, and suspended with a final savepoint. Automatic
-creation, recoverable rotation, deletion cleanup, and bound Secret persistence for project-scoped Doris,
-object-storage, and TuGraph credentials are now implemented in source and deployment manifests. A new candidate image
-has not yet completed isolated Kubernetes runtime acceptance, so Kubernetes remains `REFERENCE_ONLY`. Docker Compose
-validation is paused, and the existing `trial.7` candidate has not
-received delivery `GO`. The incompatible `trial.6` candidate remains invalid.
+The package is currently `PREPARED`. The `trial.14` API hotfix candidate and retained trial.11 UI/Flink RepoDigests are
+recorded under [`releases/2026.10.03-trial.14/`](releases/2026.10.03-trial.14/). The vendor-isolated Kubernetes
+environment passed UI proxying, API health, License activation, Flink runtime/checkpoint/savepoint, and automatic
+Doris, object-storage, and TuGraph project-credential creation, failed-rotation recovery, rotation, cross-project
+isolation, old-generation revocation, and deletion cleanup. Kubernetes remains `REFERENCE_ONLY` because complete
+core-business, backup/recovery, and customer-infrastructure productization are incomplete. Docker Compose validation is
+paused, and the incompatible `trial.6` candidate remains invalid.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
 | Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Validation paused; not deliverable |
-| Kubernetes | API and Flink isolation reference for an existing cluster | Automation implemented; new image and runtime acceptance pending |
+| Kubernetes | API and Flink isolation reference for an existing cluster | Credential lifecycle passed; core business and delivery productization pending |
 
 ## Quick start
 

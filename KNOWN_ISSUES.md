@@ -7,9 +7,9 @@
 - `trial.11` API/UI 已在厂商隔离 K8s 环境运行，License 激活、UI 代理、API 健康、Doris 登录和
   Flink Local/K8s JAR 一致性已通过。新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，
   checkpoint 持续增长，并通过最终 savepoint 暂停。
-- 项目级凭据自动创建、可恢复轮换、删除清理和 Kubernetes Secret 持久化已在源码及清单中实现，并有
-  单元与契约测试。该实现尚未进入新的加密候选镜像，也尚未在隔离 K8s 上完成真实 Doris、RustFS/MinIO、
-  TuGraph 与 Flink 联合验收。状态继续保持 `PREPARED` / `REFERENCE_ONLY`，不得用源码测试替代运行验收。
+- `trial.14` 加密 API 已在隔离 K8s 上通过真实 Doris、RustFS 和 TuGraph 的项目凭据自动创建、失败恢复、
+  轮换、跨项目隔离、旧代次吊销和删除清理验收。完整核心业务、备份恢复和客户环境安装尚未验收，
+  状态继续保持 `PREPARED` / `REFERENCE_ONLY`。
 - Docker Compose 验证已暂停。此前 `trial.7` 的 1 天 License 到期、最终 savepoint 和自动暂停证据继续
   保留，但不能替代 `trial.11` 核心业务验收。
 - `trial.6` 旧候选包含 TuGraph 3.5.0，缺少平台所需 Bolt 接口，必须废弃且不得交付。

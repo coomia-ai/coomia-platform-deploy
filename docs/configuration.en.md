@@ -18,10 +18,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<published-digest>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<published-digest>
 ```
 
-The four current `trial.11` first-party digests are recorded in
-[`releases/2026.10.01-trial.11/application-images.env`](../releases/2026.10.01-trial.11/application-images.env).
+The current `trial.14` candidate first-party digests are recorded in
+[`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env).
 The complete infrastructure image catalog is recorded in
-[`releases/2026.10.01-trial.11/infrastructure-images.env`](../releases/2026.10.01-trial.11/infrastructure-images.env).
+[`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env).
 Together, the two files define the candidate image set, which still requires final release approval.
 
 ```text

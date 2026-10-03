@@ -25,6 +25,9 @@ required=(
   releases/2026.10.01-trial.11/application-images.env
   releases/2026.10.01-trial.11/infrastructure-images.env
   releases/2026.10.01-trial.11/README.md releases/2026.10.01-trial.11/README.en.md
+  releases/2026.10.03-trial.14/application-images.env
+  releases/2026.10.03-trial.14/infrastructure-images.env
+  releases/2026.10.03-trial.14/README.md releases/2026.10.03-trial.14/README.en.md
   release-manifest.example.md release-manifest.example.en.md install.sh
   compose/.env.example compose/docker-compose.yml compose/docker-compose.app.yml
   compose/docker-compose.admin.yml compose/docker-compose.license-offline.yml

@@ -2,6 +2,12 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.6-prepared - 2026-10-03
+
+- 固定 `trial.14` 加密 API RepoDigest，UI 与 Flink 继续沿用已验收的 trial.11 摘要；
+- 记录 API 双阶段安全门禁、匿名拉取、双 SBOM 和隔离 K8s 项目凭据生命周期验收通过；
+- 更新中英文发布状态与镜像目录；Compose、核心业务、备份恢复和人工批准仍待完成。
+
 ## 0.2.5-prepared - 2026-10-03
 
 - Compose/Kubernetes 清单已接入项目凭据自动生命周期：创建时生成并验证 Doris、对象存储和 TuGraph 最小权限身份，轮换时协调 Flink 后撤销旧代次，删除时清理全部受系统管理的保留代次；

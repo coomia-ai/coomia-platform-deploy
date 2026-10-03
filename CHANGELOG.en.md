@@ -2,6 +2,14 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.6-prepared - 2026-10-03
+
+- Pinned the protected `trial.14` API RepoDigest while retaining the accepted trial.11 UI and Flink digests.
+- Recorded the API two-stage security gates, anonymous pull, two SBOMs, and isolated Kubernetes project-credential
+  lifecycle acceptance.
+- Updated bilingual release status and image catalogs; Compose, core-business, backup/recovery, and human approval
+  remain incomplete.
+
 ## 0.2.5-prepared - 2026-10-03
 
 - Wired the Compose and Kubernetes manifests to the automatic project-credential lifecycle: provisioning creates and verifies least-privilege Doris, object-store, and TuGraph identities; rotation reconciles Flink before revoking the old generation; deletion removes every retained managed generation.

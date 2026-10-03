@@ -18,10 +18,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<发布摘要>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 ```
 
-当前 `trial.11` 的四个一方镜像摘要见
-[`releases/2026.10.01-trial.11/application-images.env`](../releases/2026.10.01-trial.11/application-images.env)。
+当前 `trial.14` 候选的一方镜像摘要见
+[`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env)。
 完整基础设施镜像摘要见
-[`releases/2026.10.01-trial.11/infrastructure-images.env`](../releases/2026.10.01-trial.11/infrastructure-images.env)。
+[`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env)。
 两个文件共同构成当前候选包的镜像目录，仍须经过最终发布批准。
 
 ```text

@@ -7,11 +7,10 @@ English | [简体中文](KNOWN_ISSUES.md)
 - The vendor-isolated Kubernetes environment runs the `trial.11` API/UI. License activation, UI proxying, API health,
   Doris login, and Flink Local/Kubernetes JAR equality passed. A fresh `trial.11` Flink job reached
   `RUNNING/READY/STABLE`, advanced checkpoints, and suspended with a final savepoint.
-- Automatic project credential creation, recoverable rotation, deletion cleanup, and Kubernetes Secret persistence are
-  implemented in source and manifests with unit and contract coverage. The implementation is not yet included in a new
-  protected candidate image and has not completed joint Doris, RustFS/MinIO, TuGraph, and Flink acceptance in the
-  isolated Kubernetes environment. Status remains `PREPARED` / `REFERENCE_ONLY`; source tests do not replace runtime
-  acceptance.
+- The protected `trial.14` API passed real Doris, RustFS, and TuGraph acceptance in isolated Kubernetes for automatic
+  project-credential creation, failed-rotation recovery, rotation, cross-project isolation, old-generation revocation,
+  and deletion cleanup. Complete core-business, backup/recovery, and customer-environment installation acceptance remain
+  incomplete, so status stays `PREPARED` / `REFERENCE_ONLY`.
 - Docker Compose validation is paused. The prior `trial.7` one-day License expiry, final savepoint, and automatic pause
   evidence is retained but does not replace `trial.11` core-business acceptance.
 - The old `trial.6` candidate contains TuGraph 3.5.0 without the required Bolt interface and must not be delivered.

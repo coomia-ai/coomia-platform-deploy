@@ -18,11 +18,12 @@ Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization
 
 ## Current state
 
-This directory is currently `PREPARED`. The `trial.11` candidate digests are recorded under
-`releases/2026.10.01-trial.11/`. Anonymous reads, isolated Kubernetes API/UI, Doris login, and equality of the Flink
-runtime JARs have evidence. A new Flink job, core-business regression, and formal security/SBOM evidence retention are
-still pending. Docker Compose validation is paused. Kubernetes remains a reference implementation, and the package
-must not be represented as an approved production release or offered for self-service installation.
+This directory is currently `PREPARED`. The `trial.14` candidate digests are recorded under
+`releases/2026.10.03-trial.14/`. Protected API build, two-stage security gates, anonymous pull, SBOM, and isolated
+Kubernetes License, Flink, and project-credential lifecycle evidence are retained. Complete core-business,
+backup/recovery, and customer-environment installation acceptance remain incomplete. Docker Compose validation is
+paused. Kubernetes remains a reference implementation, and the package must not be represented as an approved
+production release or offered for self-service installation.
 
 ## Evidence retention
 

@@ -6,12 +6,12 @@ This directory provides a security reference for platform-api and Flink workload
 
 Its current status is `REFERENCE_ONLY`. Do not apply it directly to a customer production cluster without a joint review with the publisher. The installer runs only after `KUBERNETES_STATUS` is changed to `GO`.
 
-The current `trial.11` candidate digests are recorded under
-[`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/). API/UI, License activation, Doris authentication,
-and Flink image JAR equality passed. A fresh Flink job passed runtime, checkpoint, and final-savepoint acceptance.
-Project-scoped Doris, object-storage, and TuGraph credential creation, recoverable rotation, deletion cleanup, and bound
-Secret persistence are implemented in source and manifests. A new candidate image and joint real-backend acceptance
-are still pending, so this reference must not be changed to `GO`.
+The current `trial.14` candidate digests are recorded under
+[`../releases/2026.10.03-trial.14/`](../releases/2026.10.03-trial.14/). API/UI, License activation, Doris authentication,
+Flink runtime/checkpoint/savepoint, and project-scoped Doris, object-storage, and TuGraph credential creation,
+failed-rotation recovery, rotation, cross-project isolation, old-generation revocation, and deletion cleanup passed
+isolated Kubernetes acceptance. Complete core-business, backup/recovery, and customer-infrastructure productization are
+still incomplete, so this reference must not be changed to `GO`.
 
 Included material:
 
