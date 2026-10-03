@@ -22,6 +22,9 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 [`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env)。
 完整基础设施镜像摘要见
 [`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env)。
+
+正式候选包会在 `releases/<version>/` 生成与当次镜像一致的目录；安装时应使用该目录，而不是复用旧版本
+的 JAR 摘要。新建项目默认使用 Unified Intake；已有项目继续使用其已保存的引擎配置，不会自动迁移。
 两个文件共同构成当前候选包的镜像目录，仍须经过最终发布批准。
 
 ```text

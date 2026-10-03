@@ -22,6 +22,10 @@ The current `trial.14` candidate first-party digests are recorded in
 [`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env).
 The complete infrastructure image catalog is recorded in
 [`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env).
+
+Formal candidate packages generate an exact `releases/<version>/` catalog. Installations must use
+that catalog instead of reusing a prior release's JAR digest. New projects default to Unified Intake;
+existing projects keep their persisted engine selection and are not migrated implicitly.
 Together, the two files define the candidate image set, which still requires final release approval.
 
 ```text
