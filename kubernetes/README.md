@@ -8,8 +8,8 @@
 
 当前 `trial.11` 候选摘要见 [`../releases/2026.10.01-trial.11/`](../releases/2026.10.01-trial.11/)。API/UI、
 License 激活、Doris 登录和 Flink 镜像 JAR 一致性已经验证；新的 Flink 作业已完成运行、checkpoint 与
-最终 savepoint 验收。核心业务回归被项目级凭据门禁阻断：本参考尚不能自动创建每个项目独立的 Doris、
-对象存储和 TuGraph 最小权限主体及绑定 Secret，因此不得改为 `GO`。
+最终 savepoint 验收。项目级 Doris、对象存储和 TuGraph 凭据自动创建、可恢复轮换、删除清理及绑定
+Secret 已在源码与清单中实现；新的候选镜像及真实后端联合验收尚未完成，因此不得改为 `GO`。
 
 现有内容包括：
 

@@ -34,6 +34,8 @@ The installer rejects tags, empty values, and non-digest references.
 
 `POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. `OBJECT_STORAGE_ACCESS_KEY` and `OBJECT_STORAGE_SECRET_KEY` are the S3-compatible credentials used by RustFS; the application still receives mapped `MINIO_*` variables for SDK compatibility. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. The Kubernetes installer requires `mds-app/platform-api-secret.DORIS_PASSWORD` to exactly match `data-infra/doris-root-secret.password`; the Compose installer performs a real Doris login with the credentials visible inside the API container after startup. `init-config.sh` generates the remaining passwords.
 
+In customer mode, the API uses those platform administration credentials to create a dedicated Doris user, object-store user and bucket policy, and TuGraph user and graph role for every project. Active credentials are stored as an atomic record under `MDS_INTAKE_SECRETS_DIR`; rotation revokes the previous generation only after Flink job reconciliation, and project deletion stops writes before removing every retained managed generation. The directory must be writable only by the API, with mode `0700` and record mode `0600`; do not edit it manually or reuse platform administrator credentials as project credentials.
+
 The UI image always calls the backend through same-origin `/api` and reads `INTERNAL_API_URL` at container runtime. The Compose installer requests `/api/v1/license/status` from inside the UI container and fails installation when the proxy is broken; container Ready state alone is not acceptance evidence.
 
 ## Application secrets

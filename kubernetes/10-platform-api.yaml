@@ -26,6 +26,7 @@ data:
   EMBEDDING_DIMENSIONS: "768"
   OLLAMA_URL: "http://ollama.ai-infra.svc:11434"
   MINIO_ENDPOINT: "minio.data-infra.svc:9000"
+  OBJECT_STORAGE_IAM_PROVIDER: "minio"
   S3_ENDPOINT: "http://minio.data-infra.svc:9000"
   S3_ENDPOINT_CONTAINER: "http://minio.data-infra.svc:9000"
   NESSIE_URI: "http://nessie.data-infra.svc:19120/api/v2"
@@ -88,10 +89,10 @@ rules:
   - apiGroups: [""]
     resources: ["secrets"]
     # The trusted control plane resolves operator-provisioned, project-bound
-    # sink credential bundles by exact deterministic name.  It cannot list or
-    # watch Secrets; Flink workload service accounts retain zero Secret API
-    # permissions and may only consume their own generated SQL Secret.
-    verbs: ["get", "create", "delete"]
+    # sink credential bundles by exact deterministic name. Rotation replaces
+    # those Secrets by resourceVersion; list/watch/patch remain unavailable.
+    # Flink workload service accounts retain zero Secret API permissions.
+    verbs: ["get", "create", "update", "delete"]
   - apiGroups: [""]
     resources: ["serviceaccounts"]
     verbs: ["create", "delete"]

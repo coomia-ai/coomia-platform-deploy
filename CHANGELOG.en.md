@@ -2,6 +2,12 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.5-prepared - 2026-10-03
+
+- Wired the Compose and Kubernetes manifests to the automatic project-credential lifecycle: provisioning creates and verifies least-privilege Doris, object-store, and TuGraph identities; rotation reconciles Flink before revoking the old generation; deletion removes every retained managed generation.
+- Made the project-credential persistence directory API-exclusive. Kubernetes code accesses deterministic Secret names, and RBAC adds the `update` verb required for rotation while continuing to forbid `list`, `watch`, and `patch`.
+- Source and static distribution gates are complete, but the current `trial.11` images do not contain this implementation. A new immutable image and isolated Kubernetes runtime acceptance are required before release, so the package remains `PREPARED` / `REFERENCE_ONLY`.
+
 ## 0.2.4-prepared - 2026-10-02
 
 - Added immutable GHCR digests and artifact hashes for the four `trial.11` first-party application images.

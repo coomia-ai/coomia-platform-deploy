@@ -34,6 +34,8 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 
 `POSTGRES_USER` 和 `POSTGRES_DB` 只能使用字母、数字和下划线。`DATABASE_URL` 必须与 PostgreSQL 配置一致。`OBJECT_STORAGE_ACCESS_KEY` 和 `OBJECT_STORAGE_SECRET_KEY` 是 RustFS 使用的 S3 兼容凭据；应用内部仍映射为 `MINIO_*` 变量以保持 SDK 兼容。Doris 当前要求 `DORIS_USER=root`，其密码不得少于 12 个字符。Kubernetes 安装器要求 `mds-app/platform-api-secret.DORIS_PASSWORD` 与 `data-infra/doris-root-secret.password` 完全一致；Compose 安装器会在启动后使用 API 容器中的实际凭据执行真实 Doris 登录。其他密码由 `init-config.sh` 自动生成。
 
+客户模式下，API 使用上述平台管理凭据为每个项目创建独立的 Doris 用户、对象存储用户与 bucket 策略、TuGraph 用户与图角色。活动凭据以原子记录保存在 `MDS_INTAKE_SECRETS_DIR`；轮换在 Flink 作业协调完成后才撤销上一代，删除项目会先停止写入再清理全部受系统管理的保留代次。该目录必须由 API 独占写入，目录权限为 `0700`、记录权限为 `0600`；不得手工写入，也不得把平台管理员凭据作为项目凭据复用。
+
 UI 镜像始终通过同源 `/api` 调用后端，并在容器运行时读取 `INTERNAL_API_URL`。Compose 安装器会从 UI 容器请求 `/api/v1/license/status`，代理失败时安装直接失败，不得只依据容器 Ready 状态验收。
 
 ## 应用密钥

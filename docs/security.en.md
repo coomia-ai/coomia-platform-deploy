@@ -11,6 +11,7 @@ Code protection raises reverse-engineering cost but does not replace access cont
 ## Credentials and keys
 
 - `compose/.env` must use mode `0600`, and backups must be encrypted.
+- Project credentials are generated and stored atomically by the API; `MDS_INTAKE_SECRETS_DIR` must be an API-exclusive persistent directory with mode `0700` and record mode `0600`.
 - Do not reuse JWT, HMAC, database, Redis, object-store, or Flink control secrets.
 - Keep the License private key only in the publisher's issuing environment.
 - After secret exposure, revoke or rotate it immediately and assess issued tokens and backups.

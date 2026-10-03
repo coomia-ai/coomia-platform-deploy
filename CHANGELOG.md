@@ -2,6 +2,12 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.5-prepared - 2026-10-03
+
+- Compose/Kubernetes 清单已接入项目凭据自动生命周期：创建时生成并验证 Doris、对象存储和 TuGraph 最小权限身份，轮换时协调 Flink 后撤销旧代次，删除时清理全部受系统管理的保留代次；
+- 项目凭据持久化目录改为 API 独占读写；Kubernetes 代码只按确定名称访问 Secret，RBAC 增加轮换所需的 `update`，仍不允许 `list`、`watch` 或 `patch`；
+- 源码与静态交付门禁已完成，但当前 `trial.11` 镜像不包含本次实现，必须发布新不可变镜像并完成隔离 K8s 运行验收后才能放行，因此状态继续保持 `PREPARED` / `REFERENCE_ONLY`。
+
 ## 0.2.4-prepared - 2026-10-02
 
 - 新增 `trial.11` 四个一方应用镜像的不可变 GHCR 摘要和对应制品哈希；

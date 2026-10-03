@@ -10,16 +10,17 @@ The package is currently `PREPARED`. Anonymous reads verified the four public `t
 recorded under [`releases/2026.10.01-trial.11/`](releases/2026.10.01-trial.11/). The vendor-isolated Kubernetes
 environment runs the `trial.11` API and UI; UI proxying, API health, and Doris authentication passed. A newly issued
 License activated successfully and synchronized across API workers. A fresh Flink job using the immutable `trial.11`
-RepoDigest reached `RUNNING/READY/STABLE`, advanced checkpoints, and suspended with a final savepoint. Core-business
-acceptance then stopped at the project credential gate: a new project remains `CREDENTIALS_REQUIRED`, and the package
-cannot yet provision least-privilege Doris, object-storage, and TuGraph principals plus the bound Secret. Kubernetes
-therefore remains `REFERENCE_ONLY`. Docker Compose validation is paused, and the existing `trial.7` candidate has not
+RepoDigest reached `RUNNING/READY/STABLE`, advanced checkpoints, and suspended with a final savepoint. Automatic
+creation, recoverable rotation, deletion cleanup, and bound Secret persistence for project-scoped Doris,
+object-storage, and TuGraph credentials are now implemented in source and deployment manifests. A new candidate image
+has not yet completed isolated Kubernetes runtime acceptance, so Kubernetes remains `REFERENCE_ONLY`. Docker Compose
+validation is paused, and the existing `trial.7` candidate has not
 received delivery `GO`. The incompatible `trial.6` candidate remains invalid.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
 | Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Validation paused; not deliverable |
-| Kubernetes | API and Flink isolation reference for an existing cluster | License/Flink passed; project credential automation blocks delivery |
+| Kubernetes | API and Flink isolation reference for an existing cluster | Automation implemented; new image and runtime acceptance pending |
 
 ## Quick start
 
