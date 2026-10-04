@@ -28,7 +28,8 @@ vi compose/.env
 bash install.sh compose
 ```
 
-在 `compose/.env` 中填写交付方提供的全部镜像 RepoDigest。格式必须为：
+`scripts/init-config.sh` 会从 [`CURRENT_RELEASE`](CURRENT_RELEASE) 指向的目录自动写入共享镜像 RepoDigest。
+普通试用用户不需要复制镜像地址；只有交付方明确提供客户专有镜像时才覆盖默认值。镜像格式为：
 
 ```text
 <镜像仓库>/<镜像名称>@sha256:<64 位十六进制摘要>

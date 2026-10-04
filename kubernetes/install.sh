@@ -5,6 +5,28 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-/etc/kubernetes/admin.conf}"
 
+CURRENT_RELEASE="$(sed -n 's/^CURRENT_RELEASE=//p' "$REPO_ROOT/CURRENT_RELEASE")"
+[[ "$CURRENT_RELEASE" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || {
+  echo "error: CURRENT_RELEASE contains an invalid release identifier" >&2
+  exit 1
+}
+APPLICATION_IMAGES_FILE="$REPO_ROOT/releases/$CURRENT_RELEASE/application-images.env"
+[[ -f "$APPLICATION_IMAGES_FILE" ]] || {
+  echo "error: CURRENT_RELEASE does not have an application image catalog" >&2
+  exit 1
+}
+
+catalog_value() {
+  local name="$1"
+  sed -n "s/^${name}=//p" "$APPLICATION_IMAGES_FILE"
+}
+
+PLATFORM_API_IMAGE="${PLATFORM_API_IMAGE:-$(catalog_value PLATFORM_API_IMAGE)}"
+FLINK_K8S_IMAGE="${FLINK_K8S_IMAGE:-$(catalog_value FLINK_K8S_IMAGE)}"
+FLINK_UNIFIED_ARTIFACT_SHA256="${FLINK_UNIFIED_ARTIFACT_SHA256:-$(catalog_value FLINK_UNIFIED_ARTIFACT_SHA256)}"
+K8S_PROBE_IMAGE="${K8S_PROBE_IMAGE:-$PLATFORM_API_IMAGE}"
+export PLATFORM_API_IMAGE FLINK_K8S_IMAGE FLINK_UNIFIED_ARTIFACT_SHA256 K8S_PROBE_IMAGE
+
 release_value() {
   sed -n "s/^$1=//p" "$REPO_ROOT/RELEASE_STATUS"
 }
@@ -15,10 +37,10 @@ if [[ "$(release_value RELEASE_STATUS)" != "GO" ]] \
   exit 1
 fi
 
-: "${FLINK_K8S_IMAGE:?set FLINK_K8S_IMAGE to the licensed image RepoDigest}"
-: "${PLATFORM_API_IMAGE:?set PLATFORM_API_IMAGE to the licensed API image RepoDigest}"
-: "${K8S_PROBE_IMAGE:?set K8S_PROBE_IMAGE to an approved immutable RepoDigest}"
-: "${FLINK_UNIFIED_ARTIFACT_SHA256:?set FLINK_UNIFIED_ARTIFACT_SHA256 to the released Flink JAR digest}"
+: "${FLINK_K8S_IMAGE:?CURRENT_RELEASE is missing FLINK_K8S_IMAGE}"
+: "${PLATFORM_API_IMAGE:?CURRENT_RELEASE is missing PLATFORM_API_IMAGE}"
+: "${K8S_PROBE_IMAGE:?CURRENT_RELEASE is missing a probe image}"
+: "${FLINK_UNIFIED_ARTIFACT_SHA256:?CURRENT_RELEASE is missing the Flink JAR digest}"
 FLINK_K8S_IMAGE_PULL_SECRET="${FLINK_K8S_IMAGE_PULL_SECRET:-}"
 PLATFORM_API_IMAGE_PULL_SECRET="${PLATFORM_API_IMAGE_PULL_SECRET:-}"
 

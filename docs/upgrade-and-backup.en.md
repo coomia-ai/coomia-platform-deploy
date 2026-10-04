@@ -22,7 +22,8 @@ Copying live container data directories is not a consistent backup. Use componen
 2. Rehearse upgrade and rollback in an isolated environment.
 3. Stop business writes, record Flink job state, and complete a consistent backup.
 4. Preserve the current `compose/.env` and image digests.
-5. Replace the deployment package and enter only the new approved RepoDigests.
+5. Replace the deployment package and use its `CURRENT_RELEASE` defaults. Override them only for explicitly issued
+   customer-specific images.
 6. Run `bash install.sh compose`.
 7. Complete health and business acceptance checks before restoring traffic.
 

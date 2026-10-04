@@ -17,7 +17,7 @@ fail() { printf '[FAIL] %s\n' "$*"; failures=$((failures + 1)); }
 }
 
 required=(
-  README.md README.en.md AGENTS.md llms.txt LICENSE VERSION RELEASE_STATUS
+  README.md README.en.md AGENTS.md llms.txt LICENSE VERSION RELEASE_STATUS CURRENT_RELEASE
   CHANGELOG.md CHANGELOG.en.md KNOWN_ISSUES.md KNOWN_ISSUES.en.md
   releases/2026.09.30-trial.7/application-images.env
   releases/2026.09.30-trial.7/infrastructure-images.env
@@ -28,6 +28,9 @@ required=(
   releases/2026.10.03-trial.14/application-images.env
   releases/2026.10.03-trial.14/infrastructure-images.env
   releases/2026.10.03-trial.14/README.md releases/2026.10.03-trial.14/README.en.md
+  releases/2026.10.04-trial.22/application-images.env
+  releases/2026.10.04-trial.22/infrastructure-images.env
+  releases/2026.10.04-trial.22/README.md releases/2026.10.04-trial.22/README.en.md
   release-manifest.example.md release-manifest.example.en.md install.sh
   compose/.env.example compose/docker-compose.yml compose/docker-compose.app.yml
   compose/docker-compose.admin.yml compose/docker-compose.license-offline.yml
@@ -138,9 +141,29 @@ image_variables=(
   PLATFORM_API_IMAGE PLATFORM_UI_IMAGE FLINK_LOCAL_IMAGE POSTGRES_IMAGE OBJECT_STORAGE_IMAGE
   NESSIE_IMAGE TUGRAPH_IMAGE DORIS_FE_IMAGE DORIS_BE_IMAGE KAFKA_IMAGE REDIS_IMAGE
 )
+current_release="$(sed -n 's/^CURRENT_RELEASE=//p' "$ROOT/CURRENT_RELEASE")"
+application_catalog="$ROOT/releases/$current_release/application-images.env"
+infrastructure_catalog="$ROOT/releases/$current_release/infrastructure-images.env"
+[[ "$current_release" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ \
+  && -f "$application_catalog" && -f "$infrastructure_catalog" ]] \
+  && pass "CURRENT_RELEASE has a complete image catalog: $current_release" \
+  || fail "CURRENT_RELEASE does not resolve to a complete image catalog"
+
+catalog_value() {
+  local name="$1" value
+  value="$(sed -n "s/^${name}=//p" "$application_catalog" 2>/dev/null)"
+  [[ -n "$value" ]] || value="$(sed -n "s/^${name}=//p" "$infrastructure_catalog" 2>/dev/null)"
+  printf '%s' "$value"
+}
+
 for name in "${image_variables[@]}"; do
   value="$(sed -n "s/^${name}=//p" "$ROOT/compose/.env.example")"
-  [[ -z "$value" ]] && pass "image placeholder is blank: $name" || fail "image placeholder must remain blank: $name"
+  expected="$(catalog_value "$name")"
+  if [[ "$value" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ && "$value" == "$expected" ]]; then
+    pass "shared image default matches CURRENT_RELEASE: $name"
+  else
+    fail "shared image default does not match CURRENT_RELEASE: $name"
+  fi
 done
 
 if [[ "$mode" == "full" ]]; then

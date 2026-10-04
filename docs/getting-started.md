@@ -24,7 +24,9 @@ Kubernetes 清单目前为参考实现，不属于无人值守标准安装路径
 4. 软件包校验和与交付方提供的 `SHA256SUMS` 一致。
 5. 已获得适用环境的 License 文件或在线授权信息。
 
-当前仓库中的镜像字段按要求留空，因此在交付方填入正式摘要前不能启动。
+共享镜像摘要由 [`CURRENT_RELEASE`](../CURRENT_RELEASE) 指向的版本目录统一固定。普通试用用户无需从官网
+复制或选择镜像；只有交付方明确提供客户专有镜像时才覆盖默认值。发布状态门禁仍然独立生效，
+`PREPARED` 状态不能启动安装。
 
 ## 3. 初始化配置
 
@@ -34,7 +36,9 @@ bash scripts/init-config.sh
 vi compose/.env
 ```
 
-`init-config.sh` 会生成随机凭据并将 `compose/.env` 权限设置为 `0600`。填写所有镜像字段，检查主机目录、端口、网段和 License 模式。完整参数见 [配置参考](configuration.md)。
+`init-config.sh` 会载入当前版本的共享固定镜像、生成随机凭据，并将 `compose/.env` 权限设置为 `0600`。
+检查主机目录、端口、网段和 License 模式；仅在收到客户专有镜像交付时覆盖镜像字段。完整参数见
+[配置参考](configuration.md)。
 
 ## 4. 安装
 

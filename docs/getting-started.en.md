@@ -24,7 +24,10 @@ Before installation, confirm that:
 4. The package checksum matches the publisher-provided `SHA256SUMS`.
 5. The appropriate License file or online entitlement information is available.
 
-Image fields in this repository intentionally remain empty. The package cannot start until the publisher supplies approved digests.
+Shared image digests are pinned by the release directory selected in
+[`CURRENT_RELEASE`](../CURRENT_RELEASE). Standard trial users do not copy or select images from the website. Override
+the defaults only when the publisher explicitly delivers customer-specific images. Release gates remain independent,
+and a `PREPARED` package cannot install.
 
 ## 3. Initialize configuration
 
@@ -34,7 +37,9 @@ bash scripts/init-config.sh
 vi compose/.env
 ```
 
-`init-config.sh` generates random credentials and sets `compose/.env` to mode `0600`. Fill every image field and review directories, ports, network ranges, and License mode. See the [configuration reference](configuration.en.md).
+`init-config.sh` loads the current release's shared immutable images, generates random credentials, and sets
+`compose/.env` to mode `0600`. Review directories, ports, network ranges, and License mode. Override image fields only
+for a customer-specific image delivery. See the [configuration reference](configuration.en.md).
 
 ## 4. Install
 

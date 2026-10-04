@@ -18,7 +18,8 @@
 - `apply-flink-isolation.sh`：应用并验证准入策略；
 - `install.sh`：校验镜像摘要、Secret 和清单后执行部署。
 
-参考安装器要求显式提供以下发布变量，且镜像必须为不可变 RepoDigest：
+参考安装器会从 [`CURRENT_RELEASE`](../CURRENT_RELEASE) 自动载入以下共享发布变量，且镜像必须为不可变
+RepoDigest：
 
 - `PLATFORM_API_IMAGE`
 - `FLINK_K8S_IMAGE`
@@ -26,6 +27,7 @@
 - `FLINK_UNIFIED_ARTIFACT_SHA256`
 
 公共试用镜像使用 `ghcr.io/coomia-ai/...@sha256:...`，不需要镜像拉取 Secret。
+普通试用用户不需要从官网复制摘要；只有交付方明确签发客户专有镜像时才通过环境变量覆盖默认值。
 只有改用私有 Registry 时，才设置 `PLATFORM_API_IMAGE_PULL_SECRET` 和 `FLINK_K8S_IMAGE_PULL_SECRET`，
 安装器会验证 Secret 已分别存在于 `mds-app` 和 `mds-flink`。
 

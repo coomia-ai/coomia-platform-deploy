@@ -19,7 +19,8 @@ Included material:
 - `apply-flink-isolation.sh`: applies and actively verifies the admission boundary;
 - `install.sh`: validates image digests, Secrets, and manifests before deployment.
 
-The reference installer requires these release variables explicitly, with every image supplied as an immutable RepoDigest:
+The reference installer automatically loads these shared release variables from
+[`CURRENT_RELEASE`](../CURRENT_RELEASE), with every image supplied as an immutable RepoDigest:
 
 - `PLATFORM_API_IMAGE`
 - `FLINK_K8S_IMAGE`
@@ -27,6 +28,8 @@ The reference installer requires these release variables explicitly, with every 
 - `FLINK_UNIFIED_ARTIFACT_SHA256`
 
 Public trial images use `ghcr.io/coomia-ai/...@sha256:...` and require no image-pull Secret.
+Standard trial users do not copy digests from the website. Override the defaults through environment variables only
+when the publisher explicitly issues customer-specific images.
 Set `PLATFORM_API_IMAGE_PULL_SECRET` and `FLINK_K8S_IMAGE_PULL_SECRET` only for a private Registry;
 the installer then verifies the Secrets in `mds-app` and `mds-flink` respectively.
 

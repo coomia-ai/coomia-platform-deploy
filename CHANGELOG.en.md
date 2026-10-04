@@ -5,6 +5,9 @@ English | [简体中文](CHANGELOG.md)
 ## 0.2.7-prepared - 2026-10-04
 
 - Pinned the four `trial.22` first-party image RepoDigests and Unified Intake artifact digests.
+- Added the shared `CURRENT_RELEASE` image catalog. Compose initialization and the Kubernetes reference installer now
+  load default digests automatically; only explicitly issued customer-specific images override them, so standard users
+  do not copy image addresses from the website.
 - Recorded passing isolated Kubernetes acceptance for credential rotation, automatic savepoint upgrade, and the
   object/checkpoint/Iceberg/Action core workflow.
 - Recorded passing application-level recovery for PostgreSQL/Nessie, object storage, Doris, TuGraph, Kafka, Redis, and

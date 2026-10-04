@@ -29,7 +29,9 @@ vi compose/.env
 bash install.sh compose
 ```
 
-Fill every image field in `compose/.env` with the RepoDigest supplied by the publisher:
+`scripts/init-config.sh` automatically writes shared image RepoDigests from the catalog selected by
+[`CURRENT_RELEASE`](CURRENT_RELEASE). Standard trial users do not copy image addresses. Override the defaults only
+when the publisher explicitly supplies customer-specific images. Image references use this format:
 
 ```text
 <registry>/<image>@sha256:<64-hex-digest>

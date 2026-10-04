@@ -81,7 +81,8 @@ An approval for one command does not authorize unrelated changes.
 1. Confirm the release status is `GO`.
 2. Run package verification and host preflight.
 3. Confirm backups are not relevant because the target is a clean host; otherwise stop and classify the operation as an upgrade or migration.
-4. Initialize configuration and have the customer enter approved RepoDigests and environment-specific values.
+4. Initialize configuration from the shared `CURRENT_RELEASE` catalog. Change RepoDigests only when the publisher
+   explicitly supplies customer-specific images; have the customer enter only environment-specific values.
 5. Run the standard installer only after explicit approval.
 6. Verify UI, API, License, first administrator, data source, pipeline, Flink job, and storage behavior.
 

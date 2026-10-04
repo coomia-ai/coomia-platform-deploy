@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Coomia AI Data Platform Docker Compose Environment",
-  "description": "Machine-readable contract for a parsed compose/.env file. Image fields are blank in the distribution template but must contain approved immutable RepoDigests in an installable customer configuration.",
+  "description": "Machine-readable contract for a parsed compose/.env file. Image fields default to the shared CURRENT_RELEASE catalog and may be overridden only with publisher-approved customer-specific immutable RepoDigests.",
   "type": "object",
   "additionalProperties": false,
   "properties": {

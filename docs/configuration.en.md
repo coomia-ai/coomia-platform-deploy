@@ -4,11 +4,14 @@ English | [简体中文](configuration.md)
 
 The customer configuration file is `compose/.env`. It contains credentials, must use mode `0600`, and must never be committed to Git or pasted into tickets or chat.
 
-The machine-readable configuration contract is [`schemas/compose-env.schema.json`](../schemas/compose-env.schema.json). The schema describes a parsed customer configuration; blank image placeholders in the distribution template must be replaced with approved RepoDigests before installation.
+The machine-readable configuration contract is [`schemas/compose-env.schema.json`](../schemas/compose-env.schema.json). The schema describes a parsed customer configuration; the distribution template already contains approved RepoDigests for the current shared release.
 
 ## Images
 
-The publisher must fill `PLATFORM_API_IMAGE`, `PLATFORM_UI_IMAGE`, `FLINK_LOCAL_IMAGE`, and every infrastructure image variable. Each value must be a complete RepoDigest:
+The catalog selected by [`CURRENT_RELEASE`](../CURRENT_RELEASE) provides `PLATFORM_API_IMAGE`, `PLATFORM_UI_IMAGE`,
+`FLINK_LOCAL_IMAGE`, and every infrastructure image variable. Standard trial users do not fill them. Override the
+defaults only when the publisher explicitly provides customer-specific images; every value must be a complete
+RepoDigest:
 
 Public trial application images come from `ghcr.io/coomia-ai`, for example:
 
@@ -18,10 +21,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<published-digest>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<published-digest>
 ```
 
-The current `trial.14` candidate first-party digests are recorded in
-[`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env).
+The current `trial.22` candidate first-party digests are recorded in
+[`releases/2026.10.04-trial.22/application-images.env`](../releases/2026.10.04-trial.22/application-images.env).
 The complete infrastructure image catalog is recorded in
-[`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env).
+[`releases/2026.10.04-trial.22/infrastructure-images.env`](../releases/2026.10.04-trial.22/infrastructure-images.env).
 
 Formal candidate packages generate an exact `releases/<version>/` catalog. Installations must use
 that catalog instead of reusing a prior release's JAR digest. New projects default to Unified Intake;
@@ -32,7 +35,9 @@ Together, the two files define the candidate image set, which still requires fin
 <registry>/<image>@sha256:<64-lowercase-hex-digest>
 ```
 
-The installer rejects tags, empty values, and non-digest references.
+The installer rejects tags, empty values, and non-digest references. Environment variables may override the shared
+Kubernetes reference-installer defaults for an explicitly issued customer-specific image set; overrides never bypass
+release-state gates.
 
 ## Database and infrastructure credentials
 

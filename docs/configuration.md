@@ -4,11 +4,13 @@
 
 客户配置文件为 `compose/.env`。该文件包含凭据，权限必须为 `0600`，不得提交到 Git、工单或聊天记录。
 
-机器可读配置契约位于 [`schemas/compose-env.schema.json`](../schemas/compose-env.schema.json)。该 Schema 面向解析后的客户配置；交付模板中的镜像空值在正式安装前必须由批准的 RepoDigest 替换。
+机器可读配置契约位于 [`schemas/compose-env.schema.json`](../schemas/compose-env.schema.json)。该 Schema 面向解析后的客户配置；交付模板已经使用当前共享版本批准的 RepoDigest。
 
 ## 镜像
 
-`PLATFORM_API_IMAGE`、`PLATFORM_UI_IMAGE`、`FLINK_LOCAL_IMAGE` 以及全部基础设施镜像变量必须由交付方填写。值必须是完整 RepoDigest：
+`PLATFORM_API_IMAGE`、`PLATFORM_UI_IMAGE`、`FLINK_LOCAL_IMAGE` 以及全部基础设施镜像变量由
+[`CURRENT_RELEASE`](../CURRENT_RELEASE) 指向的目录统一提供。普通试用用户不需要填写。只有交付方明确
+提供客户专有镜像时才覆盖默认值；值必须是完整 RepoDigest：
 
 公共试用应用镜像来自 `ghcr.io/coomia-ai`，例如：
 
@@ -18,10 +20,10 @@ PLATFORM_UI_IMAGE=ghcr.io/coomia-ai/coomia-platform-ui@sha256:<发布摘要>
 FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 ```
 
-当前 `trial.14` 候选的一方镜像摘要见
-[`releases/2026.10.03-trial.14/application-images.env`](../releases/2026.10.03-trial.14/application-images.env)。
+当前 `trial.22` 候选的一方镜像摘要见
+[`releases/2026.10.04-trial.22/application-images.env`](../releases/2026.10.04-trial.22/application-images.env)。
 完整基础设施镜像摘要见
-[`releases/2026.10.03-trial.14/infrastructure-images.env`](../releases/2026.10.03-trial.14/infrastructure-images.env)。
+[`releases/2026.10.04-trial.22/infrastructure-images.env`](../releases/2026.10.04-trial.22/infrastructure-images.env)。
 
 正式候选包会在 `releases/<version>/` 生成与当次镜像一致的目录；安装时应使用该目录，而不是复用旧版本
 的 JAR 摘要。新建项目默认使用 Unified Intake；已有项目继续使用其已保存的引擎配置，不会自动迁移。
@@ -31,7 +33,8 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 <镜像仓库>/<镜像名称>@sha256:<64 位小写十六进制摘要>
 ```
 
-安装器拒绝 tag、空值和非摘要格式。
+安装器拒绝 tag、空值和非摘要格式。环境变量可以覆盖 Kubernetes 参考安装器的共享默认值，用于明确
+签发的客户专有镜像；覆盖不会绕过发布状态门禁。
 
 ## 数据库与基础设施凭据
 
