@@ -4,14 +4,12 @@
 
 ## 当前发布准备项
 
-- `trial.11` API/UI 已在厂商隔离 K8s 环境运行，License 激活、UI 代理、API 健康、Doris 登录和
-  Flink Local/K8s JAR 一致性已通过。新 `trial.11` Flink 作业已达到 `RUNNING/READY/STABLE`，
-  checkpoint 持续增长，并通过最终 savepoint 暂停。
-- `trial.14` 加密 API 已在隔离 K8s 上通过真实 Doris、RustFS 和 TuGraph 的项目凭据自动创建、失败恢复、
-  轮换、跨项目隔离、旧代次吊销和删除清理验收。完整核心业务、备份恢复和客户环境安装尚未验收，
-  状态继续保持 `PREPARED` / `REFERENCE_ONLY`。
+- `trial.22` 四个一方镜像已通过双阶段安全门禁、匿名拉取和 SBOM 验证。隔离 K8s 已通过 License、
+  项目凭据生命周期、Flink savepoint 升级、对象/checkpoint/Iceberg/Action 核心链路和应用级组件恢复。
+- 当前恢复演练使用单节点 `local-path`，不能替代客户 CSI、跨节点/跨机房、异地加密备份、计划任务、
+  告警和 RPO/RTO 验收；全产品页面与业务模块也未完成系统性回归，因此状态保持 `PREPARED` / `REFERENCE_ONLY`。
 - Docker Compose 验证已暂停。此前 `trial.7` 的 1 天 License 到期、最终 savepoint 和自动暂停证据继续
-  保留，但不能替代 `trial.11` 核心业务验收。
+  保留，但不能替代当前客户环境验收。
 - `trial.6` 旧候选包含 TuGraph 3.5.0，缺少平台所需 Bolt 接口，必须废弃且不得交付。
 - RustFS 使用新的 `coomia-object-storage-data` 数据卷。旧 MinIO 数据卷不能直接挂载到 RustFS；已有环境
   如需迁移，必须执行单独设计、备份验证和对象级迁移，不能按普通原地升级处理。

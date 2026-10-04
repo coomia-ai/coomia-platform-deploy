@@ -6,18 +6,18 @@ This repository installs and operates Coomia AI Data Platform in a customer-mana
 
 ## Release status
 
-The package is currently `PREPARED`. The `trial.14` API hotfix candidate and retained trial.11 UI/Flink RepoDigests are
-recorded under [`releases/2026.10.03-trial.14/`](releases/2026.10.03-trial.14/). The vendor-isolated Kubernetes
-environment passed UI proxying, API health, License activation, Flink runtime/checkpoint/savepoint, and automatic
-Doris, object-storage, and TuGraph project-credential creation, failed-rotation recovery, rotation, cross-project
-isolation, old-generation revocation, and deletion cleanup. Kubernetes remains `REFERENCE_ONLY` because complete
-core-business, backup/recovery, and customer-infrastructure productization are incomplete. Docker Compose validation is
-paused, and the incompatible `trial.6` candidate remains invalid.
+The package is currently `PREPARED`. The generated package's `release-manifest.md` and matching
+`releases/<version>/` directory are authoritative for the current candidate and immutable RepoDigests. `trial.22`
+passed isolated Kubernetes acceptance for License, project credentials, Flink savepoint upgrades, object writes,
+checkpoints, exact Iceberg snapshot reads, Action dry-runs, and application-level recovery of PostgreSQL, Nessie,
+object storage, Doris, TuGraph, Kafka, Redis, and License state. Kubernetes remains `REFERENCE_ONLY` because customer
+infrastructure disaster recovery and full-product regression are incomplete. Docker Compose validation is paused,
+and the incompatible `trial.6` candidate remains invalid.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
 | Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Validation paused; not deliverable |
-| Kubernetes | API and Flink isolation reference for an existing cluster | Credential lifecycle passed; core business and delivery productization pending |
+| Kubernetes | API and Flink isolation reference for an existing cluster | Core workflow and application-level recovery passed; customer infrastructure productization pending |
 
 ## Quick start
 

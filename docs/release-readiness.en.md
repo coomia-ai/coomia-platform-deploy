@@ -18,12 +18,12 @@ Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization
 
 ## Current state
 
-This directory is currently `PREPARED`. The `trial.14` candidate digests are recorded under
-`releases/2026.10.03-trial.14/`. Protected API build, two-stage security gates, anonymous pull, SBOM, and isolated
-Kubernetes License, Flink, and project-credential lifecycle evidence are retained. Complete core-business,
-backup/recovery, and customer-environment installation acceptance remain incomplete. Docker Compose validation is
-paused. Kubernetes remains a reference implementation, and the package must not be represented as an approved
-production release or offered for self-service installation.
+This directory is currently `PREPARED`. The generated package's `release-manifest.md` and matching
+`releases/<version>/` directory are authoritative for candidate digests. Evidence is retained for the `trial.22`
+protected build, security gates, anonymous pull, SBOM, and isolated Kubernetes License, Flink, project credentials,
+core object/Action workflow, and application-level component recovery. Customer CSI/cross-node disaster recovery,
+full-product regression, Compose, and human approval remain incomplete. Kubernetes remains a reference implementation,
+and the package must not be represented as an approved production release or offered for self-service installation.
 
 ## Evidence retention
 

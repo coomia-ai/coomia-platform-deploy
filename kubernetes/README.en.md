@@ -6,12 +6,12 @@ This directory provides a security reference for platform-api and Flink workload
 
 Its current status is `REFERENCE_ONLY`. Do not apply it directly to a customer production cluster without a joint review with the publisher. The installer runs only after `KUBERNETES_STATUS` is changed to `GO`.
 
-The current `trial.14` candidate digests are recorded under
-[`../releases/2026.10.03-trial.14/`](../releases/2026.10.03-trial.14/). API/UI, License activation, Doris authentication,
-Flink runtime/checkpoint/savepoint, and project-scoped Doris, object-storage, and TuGraph credential creation,
-failed-rotation recovery, rotation, cross-project isolation, old-generation revocation, and deletion cleanup passed
-isolated Kubernetes acceptance. Complete core-business, backup/recovery, and customer-infrastructure productization are
-still incomplete, so this reference must not be changed to `GO`.
+The generated package's `release-manifest.md` and matching `releases/<version>/` directory are authoritative for current
+candidate digests. `trial.22` passed isolated Kubernetes acceptance for License, project-credential lifecycle, Flink
+savepoint upgrades, the object/checkpoint/Iceberg/Action core workflow, and application-level recovery of PostgreSQL,
+Nessie, object storage, Doris, TuGraph, Kafka, Redis, and License state. Customer CSI/cross-node disaster recovery,
+full-product regression, and customer-infrastructure productization remain incomplete, so this reference must not be
+changed to `GO`.
 
 Included material:
 

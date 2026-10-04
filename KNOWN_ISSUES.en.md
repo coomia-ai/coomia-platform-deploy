@@ -4,15 +4,14 @@ English | [简体中文](KNOWN_ISSUES.md)
 
 ## Current release-preparation items
 
-- The vendor-isolated Kubernetes environment runs the `trial.11` API/UI. License activation, UI proxying, API health,
-  Doris login, and Flink Local/Kubernetes JAR equality passed. A fresh `trial.11` Flink job reached
-  `RUNNING/READY/STABLE`, advanced checkpoints, and suspended with a final savepoint.
-- The protected `trial.14` API passed real Doris, RustFS, and TuGraph acceptance in isolated Kubernetes for automatic
-  project-credential creation, failed-rotation recovery, rotation, cross-project isolation, old-generation revocation,
-  and deletion cleanup. Complete core-business, backup/recovery, and customer-environment installation acceptance remain
-  incomplete, so status stays `PREPARED` / `REFERENCE_ONLY`.
+- All four `trial.22` first-party images passed the two-stage security gates, anonymous pull, and SBOM verification.
+  Isolated Kubernetes passed License, project-credential lifecycle, Flink savepoint upgrades, the
+  object/checkpoint/Iceberg/Action core workflow, and application-level component recovery.
+- The recovery rehearsal used single-node `local-path` storage and does not replace customer CSI, cross-node/site,
+  encrypted off-site backup, scheduling, alerting, or RPO/RTO acceptance. A systematic regression of every product page
+  and business module is also incomplete, so status remains `PREPARED` / `REFERENCE_ONLY`.
 - Docker Compose validation is paused. The prior `trial.7` one-day License expiry, final savepoint, and automatic pause
-  evidence is retained but does not replace `trial.11` core-business acceptance.
+  evidence is retained but does not replace current customer-environment acceptance.
 - The old `trial.6` candidate contains TuGraph 3.5.0 without the required Bolt interface and must not be delivered.
 - RustFS uses the new `coomia-object-storage-data` volume. An existing MinIO volume must not be mounted directly into
   RustFS; migration requires a separately designed, backup-verified object-level migration rather than an in-place upgrade.

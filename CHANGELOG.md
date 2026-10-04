@@ -2,6 +2,13 @@
 
 [English](CHANGELOG.en.md) | 简体中文
 
+## 0.2.7-prepared - 2026-10-04
+
+- 固定 `trial.22` 四个一方镜像 RepoDigest 和 Unified Intake 制品摘要；
+- 记录隔离 K8s 项目凭据轮换、自动 savepoint 升级、对象/checkpoint/Iceberg/Action 核心链路通过；
+- 记录 PostgreSQL/Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复通过；
+- 根状态页改为以生成的 release manifest 为准；Compose、客户基础设施灾备、全产品回归和人工批准仍待完成。
+
 ## 0.2.6-prepared - 2026-10-03
 
 - 固定 `trial.14` 加密 API RepoDigest，UI 与 Flink 继续沿用已验收的 trial.11 摘要；

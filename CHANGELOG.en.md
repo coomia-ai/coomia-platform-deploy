@@ -2,6 +2,16 @@
 
 English | [简体中文](CHANGELOG.md)
 
+## 0.2.7-prepared - 2026-10-04
+
+- Pinned the four `trial.22` first-party image RepoDigests and Unified Intake artifact digests.
+- Recorded passing isolated Kubernetes acceptance for credential rotation, automatic savepoint upgrade, and the
+  object/checkpoint/Iceberg/Action core workflow.
+- Recorded passing application-level recovery for PostgreSQL/Nessie, object storage, Doris, TuGraph, Kafka, Redis, and
+  License state.
+- Made the generated release manifest authoritative for root status; Compose, customer-infrastructure disaster recovery,
+  full-product regression, and human approval remain open.
+
 ## 0.2.6-prepared - 2026-10-03
 
 - Pinned the protected `trial.14` API RepoDigest while retaining the accepted trial.11 UI and Flink digests.

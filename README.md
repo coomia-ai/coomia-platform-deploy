@@ -6,16 +6,16 @@
 
 ## 当前发布状态
 
-当前状态为 `PREPARED`。`trial.14` API 热修候选及沿用的 trial.11 UI/Flink RepoDigest 记录在
-[`releases/2026.10.03-trial.14/`](releases/2026.10.03-trial.14/)。厂商隔离 K8s 环境已通过 UI 代理、API
-健康、License 激活、Flink 运行/checkpoint/savepoint，以及 Doris、对象存储和 TuGraph 项目凭据自动
-创建、失败恢复、轮换、跨项目隔离、旧代次吊销和删除清理验收。Kubernetes 因完整核心业务、备份恢复和
-客户基础设施产品化尚未完成而继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，`trial.6` 已作废。
+当前状态为 `PREPARED`。当前候选版本和不可变 RepoDigest 以生成包根目录的 `release-manifest.md` 及
+对应 `releases/<version>/` 目录为准。`trial.22` 已在厂商隔离 K8s 环境通过 License、项目凭据生命周期、
+Flink savepoint 升级、对象写入、checkpoint、精确 Iceberg 快照读取、Action dry-run，以及 PostgreSQL、
+Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复验收。Kubernetes 因客户
+基础设施灾备与全产品回归尚未完成而继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，`trial.6` 已作废。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
 | Docker Compose | 单机生产、PoC 和中小规模私有部署 | 验证暂停；不得交付 |
-| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 项目凭据生命周期通过；核心业务与交付产品化待完成 |
+| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 核心链路与应用级恢复通过；客户基础设施产品化待完成 |
 
 ## 快速开始
 

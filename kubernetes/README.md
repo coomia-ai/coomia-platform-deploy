@@ -6,10 +6,10 @@
 
 当前状态为 `REFERENCE_ONLY`。未经交付方联合评审，不应直接应用到客户生产集群。安装器只有在 `KUBERNETES_STATUS=GO` 后才会执行。
 
-当前 `trial.14` 候选摘要见 [`../releases/2026.10.03-trial.14/`](../releases/2026.10.03-trial.14/)。API/UI、
-License 激活、Doris 登录、Flink 运行/checkpoint/savepoint，以及项目级 Doris、对象存储和 TuGraph
-凭据自动创建、失败恢复、轮换、跨项目隔离、旧代次吊销和删除清理已经通过隔离 K8s 验收。完整核心业务、
-备份恢复和客户基础设施产品化尚未完成，因此不得改为 `GO`。
+当前候选摘要以生成包的 `release-manifest.md` 和对应 `releases/<version>/` 目录为准。`trial.22` 已通过
+隔离 K8s 的 License、项目凭据生命周期、Flink savepoint 升级、对象/checkpoint/Iceberg/Action 核心链路，
+以及 PostgreSQL、Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复验收。
+客户 CSI/跨节点灾备、全产品回归和客户基础设施产品化尚未完成，因此不得改为 `GO`。
 
 现有内容包括：
 
