@@ -10,14 +10,14 @@ The package is currently `PREPARED`. The generated package's `release-manifest.m
 `releases/<version>/` directory are authoritative for the current candidate and immutable RepoDigests. `trial.22`
 passed isolated Kubernetes acceptance for License, project credentials, Flink savepoint upgrades, object writes,
 checkpoints, exact Iceberg snapshot reads, Action dry-runs, and application-level recovery of PostgreSQL, Nessie,
-object storage, Doris, TuGraph, Kafka, Redis, and License state. Kubernetes remains `REFERENCE_ONLY` because customer
-infrastructure disaster recovery and full-product regression are incomplete. Docker Compose validation is paused,
-and the incompatible `trial.6` candidate remains invalid.
+object storage, Doris, TuGraph, Kafka, Redis, and License state. Kubernetes remains `REFERENCE_ONLY` because a complete
+self-service installer, full-product regression, and human approval are incomplete. Docker Compose is outside the
+current Kubernetes candidate scope, and the incompatible `trial.6` candidate remains invalid.
 
 | Deployment path | Intended use | Status |
 |---|---|---|
 | Docker Compose | Single-node production, PoC, and small-to-medium private deployments | Validation paused; not deliverable |
-| Kubernetes | API and Flink isolation reference for an existing cluster | Core workflow and application-level recovery passed; customer infrastructure productization pending |
+| Kubernetes | API and Flink isolation reference for an existing cluster | Core workflow and application-level recovery passed; complete self-service installer, full-product regression, and human approval pending |
 
 ## Quick start
 

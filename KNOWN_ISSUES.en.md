@@ -7,11 +7,10 @@ English | [简体中文](KNOWN_ISSUES.md)
 - All four `trial.22` first-party images passed the two-stage security gates, anonymous pull, and SBOM verification.
   Isolated Kubernetes passed License, project-credential lifecycle, Flink savepoint upgrades, the
   object/checkpoint/Iceberg/Action core workflow, and application-level component recovery.
-- The recovery rehearsal used single-node `local-path` storage and does not replace customer CSI, cross-node/site,
-  encrypted off-site backup, scheduling, alerting, or RPO/RTO acceptance. A systematic regression of every product page
-  and business module is also incomplete, so status remains `PREPARED` / `REFERENCE_ONLY`.
-- Docker Compose validation is paused. The prior `trial.7` one-day License expiry, final savepoint, and automatic pause
-  evidence is retained but does not replace current customer-environment acceptance.
+- A complete Kubernetes self-service installer, systematic regression of every product page and business module, and
+  human approval are incomplete, so status remains `PREPARED` / `REFERENCE_ONLY`.
+- Docker Compose is outside the current Kubernetes candidate scope. Its paused validation does not block the Kubernetes
+  candidate and must not be used to claim Compose deliverability.
 - The old `trial.6` candidate contains TuGraph 3.5.0 without the required Bolt interface and must not be delivered.
 - RustFS uses the new `coomia-object-storage-data` volume. An existing MinIO volume must not be mounted directly into
   RustFS; migration requires a separately designed, backup-verified object-level migration rather than an in-place upgrade.

@@ -9,7 +9,7 @@
 当前候选摘要以生成包的 `release-manifest.md` 和对应 `releases/<version>/` 目录为准。`trial.22` 已通过
 隔离 K8s 的 License、项目凭据生命周期、Flink savepoint 升级、对象/checkpoint/Iceberg/Action 核心链路，
 以及 PostgreSQL、Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复验收。
-客户 CSI/跨节点灾备、全产品回归和客户基础设施产品化尚未完成，因此不得改为 `GO`。
+完整自助安装器、全产品回归和人工批准尚未完成，因此不得改为 `GO`。
 
 现有内容包括：
 

@@ -21,9 +21,10 @@ Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization
 This directory is currently `PREPARED`. The generated package's `release-manifest.md` and matching
 `releases/<version>/` directory are authoritative for candidate digests. Evidence is retained for the `trial.22`
 protected build, security gates, anonymous pull, SBOM, and isolated Kubernetes License, Flink, project credentials,
-core object/Action workflow, and application-level component recovery. Customer CSI/cross-node disaster recovery,
-full-product regression, Compose, and human approval remain incomplete. Kubernetes remains a reference implementation,
-and the package must not be represented as an approved production release or offered for self-service installation.
+core object/Action workflow, and application-level component recovery. A complete Kubernetes self-service installer,
+full-product regression, and human approval remain incomplete; Compose is outside the current Kubernetes candidate
+scope. Kubernetes remains a reference implementation, and the package must not be represented as an approved production
+release or offered for self-service installation.
 
 ## Evidence retention
 

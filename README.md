@@ -9,13 +9,14 @@
 当前状态为 `PREPARED`。当前候选版本和不可变 RepoDigest 以生成包根目录的 `release-manifest.md` 及
 对应 `releases/<version>/` 目录为准。`trial.22` 已在厂商隔离 K8s 环境通过 License、项目凭据生命周期、
 Flink savepoint 升级、对象写入、checkpoint、精确 Iceberg 快照读取、Action dry-run，以及 PostgreSQL、
-Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复验收。Kubernetes 因客户
-基础设施灾备与全产品回归尚未完成而继续保持 `REFERENCE_ONLY`。Docker Compose 验证已暂停，`trial.6` 已作废。
+Nessie、对象存储、Doris、TuGraph、Kafka、Redis 和 License 状态的应用级恢复验收。Kubernetes 因完整
+自助安装器、全产品回归和人工批准尚未完成而继续保持 `REFERENCE_ONLY`。Docker Compose 不在当前 K8s
+候选范围内，`trial.6` 已作废。
 
 | 部署方式 | 定位 | 状态 |
 |---|---|---|
 | Docker Compose | 单机生产、PoC 和中小规模私有部署 | 验证暂停；不得交付 |
-| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 核心链路与应用级恢复通过；客户基础设施产品化待完成 |
+| Kubernetes | 已有集群中的 API 与 Flink 隔离参考 | 核心链路与应用级恢复通过；完整自助安装器、全产品回归和人工批准待完成 |
 
 ## 快速开始
 

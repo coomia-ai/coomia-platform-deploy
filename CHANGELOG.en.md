@@ -9,8 +9,10 @@ English | [简体中文](CHANGELOG.md)
   object/checkpoint/Iceberg/Action core workflow.
 - Recorded passing application-level recovery for PostgreSQL/Nessie, object storage, Doris, TuGraph, Kafka, Redis, and
   License state.
-- Made the generated release manifest authoritative for root status; Compose, customer-infrastructure disaster recovery,
+- Made the generated release manifest authoritative for root status; a complete Kubernetes self-service installer,
   full-product regression, and human approval remain open.
+- Enterprise infrastructure disaster recovery and Compose are outside the current Kubernetes candidate scope and are
+  not release gates for it.
 
 ## 0.2.6-prepared - 2026-10-03
 

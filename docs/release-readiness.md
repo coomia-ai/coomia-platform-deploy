@@ -20,8 +20,9 @@
 
 本目录当前为 `PREPARED`。当前候选摘要以生成包的 `release-manifest.md` 和对应 `releases/<version>/`
 目录为准。`trial.22` 的保护构建、安全门禁、匿名读取、SBOM，以及隔离 K8s 的 License、Flink、项目凭据、
-核心对象/Action 链路和应用级组件恢复已有证据。客户 CSI/跨节点灾备、全产品回归、Compose 和人工批准仍待
-完成。Kubernetes 仍为参考实现，当前包不得宣称为已批准生产版本，也不得提供自助安装下载。
+核心对象/Action 链路和应用级组件恢复已有证据。完整 K8s 自助安装器、全产品回归和人工批准仍待完成；
+Compose 不在当前 K8s 候选范围内。Kubernetes 仍为参考实现，当前包不得宣称为已批准生产版本，也不得
+提供自助安装下载。
 
 ## 证据归档
 

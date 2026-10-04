@@ -6,10 +6,9 @@
 
 - `trial.22` 四个一方镜像已通过双阶段安全门禁、匿名拉取和 SBOM 验证。隔离 K8s 已通过 License、
   项目凭据生命周期、Flink savepoint 升级、对象/checkpoint/Iceberg/Action 核心链路和应用级组件恢复。
-- 当前恢复演练使用单节点 `local-path`，不能替代客户 CSI、跨节点/跨机房、异地加密备份、计划任务、
-  告警和 RPO/RTO 验收；全产品页面与业务模块也未完成系统性回归，因此状态保持 `PREPARED` / `REFERENCE_ONLY`。
-- Docker Compose 验证已暂停。此前 `trial.7` 的 1 天 License 到期、最终 savepoint 和自动暂停证据继续
-  保留，但不能替代当前客户环境验收。
+- 完整 K8s 自助安装器、全产品页面与业务模块系统性回归和人工批准尚未完成，因此状态保持
+  `PREPARED` / `REFERENCE_ONLY`。
+- Docker Compose 不在当前 K8s 候选范围内，其暂停验证不阻塞 K8s 候选；不得据此宣称 Compose 可交付。
 - `trial.6` 旧候选包含 TuGraph 3.5.0，缺少平台所需 Bolt 接口，必须废弃且不得交付。
 - RustFS 使用新的 `coomia-object-storage-data` 数据卷。旧 MinIO 数据卷不能直接挂载到 RustFS；已有环境
   如需迁移，必须执行单独设计、备份验证和对象级迁移，不能按普通原地升级处理。

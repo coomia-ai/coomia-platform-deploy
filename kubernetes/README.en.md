@@ -9,9 +9,8 @@ Its current status is `REFERENCE_ONLY`. Do not apply it directly to a customer p
 The generated package's `release-manifest.md` and matching `releases/<version>/` directory are authoritative for current
 candidate digests. `trial.22` passed isolated Kubernetes acceptance for License, project-credential lifecycle, Flink
 savepoint upgrades, the object/checkpoint/Iceberg/Action core workflow, and application-level recovery of PostgreSQL,
-Nessie, object storage, Doris, TuGraph, Kafka, Redis, and License state. Customer CSI/cross-node disaster recovery,
-full-product regression, and customer-infrastructure productization remain incomplete, so this reference must not be
-changed to `GO`.
+Nessie, object storage, Doris, TuGraph, Kafka, Redis, and License state. A complete self-service installer,
+full-product regression, and human approval remain incomplete, so this reference must not be changed to `GO`.
 
 Included material:
 
