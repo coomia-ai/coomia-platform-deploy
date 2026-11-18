@@ -35,6 +35,7 @@ English | [简体中文](release-manifest.example.md)
 | Vulnerability and malware scan |  |  |
 | Clean-environment installation |  |  |
 | First administrator and License activation |  |  |
+| Core AGPL, third-party/source obligations, and Enterprise commercial-combination distribution review |  |  |
 | Core business acceptance |  |  |
 | Upgrade and rollback |  |  |
 | Backup and recovery |  |  |

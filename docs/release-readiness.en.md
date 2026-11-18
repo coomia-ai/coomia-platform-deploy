@@ -12,7 +12,10 @@ English | [简体中文](release-readiness.md)
 - Clean-environment installation, first-administrator bootstrap, License activation, and basic business acceptance pass.
 - Upgrade, rollback, backup, and recovery rehearsals pass.
 - Known issues are assessed and release approval is recorded.
+- Core AGPL, third-party notices/source obligations, and Enterprise commercial-combination distribution review are approved (`LICENSE_REVIEW_STATUS=GO`).
 - `bash scripts/verify-package.sh` succeeds.
+
+`bash scripts/verify-package.sh --layout-only` checks only package layout, shell syntax, source/secret boundaries, the configuration schema, and the shared image catalog. It does not require formal Enterprise release identities or approve a release. A formal delivery must run the full verifier without arguments and satisfy every admission criterion.
 
 Acceptance evidence must explicitly cover clean-volume PostgreSQL initialization, first-user bootstrap, every infrastructure image, database migration compatibility, platform-ui availability, and the Ingress/TLS responsibility boundary.
 
@@ -32,4 +35,4 @@ The publisher should create a release-specific manifest from the [release manife
 
 ## Status changes
 
-Before changing status to `GO`, the release owner must verify traceable evidence for every admission criterion. Any image, script, or manifest change invalidates affected evidence and requires revalidation.
+Before changing status to `GO`, the release owner must verify traceable evidence for every admission criterion and set `LICENSE_REVIEW_STATUS` to `GO`. That field covers Core AGPL, third-party notices/source obligations, and Enterprise commercial-combination distribution review. Any image, script, or manifest change invalidates affected evidence and requires revalidation.

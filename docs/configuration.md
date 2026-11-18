@@ -36,6 +36,10 @@ FLINK_LOCAL_IMAGE=ghcr.io/coomia-ai/coomia-flink-local@sha256:<发布摘要>
 安装器拒绝 tag、空值和非摘要格式。环境变量可以覆盖 Kubernetes 参考安装器的共享默认值，用于明确
 签发的客户专有镜像；覆盖不会绕过发布状态门禁。
 
+Enterprise Kubernetes 交付另外使用发布目录中的 `CLASSIC_ENTERPRISE_UI_IMAGE`。它必须是独立
+assembled Enterprise UI 的不可变 RepoDigest，不能复用 `PLATFORM_UI_IMAGE`；该字段由 Enterprise
+清单渲染器在配置外部根路由时校验。
+
 ## 数据库与基础设施凭据
 
 `POSTGRES_USER` 和 `POSTGRES_DB` 只能使用字母、数字和下划线。`DATABASE_URL` 必须与 PostgreSQL 配置一致。`OBJECT_STORAGE_ACCESS_KEY` 和 `OBJECT_STORAGE_SECRET_KEY` 是 RustFS 使用的 S3 兼容凭据；应用内部仍映射为 `MINIO_*` 变量以保持 SDK 兼容。Doris 当前要求 `DORIS_USER=root`，其密码不得少于 12 个字符。Kubernetes 安装器要求 `mds-app/platform-api-secret.DORIS_PASSWORD` 与 `data-infra/doris-root-secret.password` 完全一致；Compose 安装器会在启动后使用 API 容器中的实际凭据执行真实 Doris 登录。其他密码由 `init-config.sh` 自动生成。

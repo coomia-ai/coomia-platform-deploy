@@ -37,6 +37,11 @@ required=(
   compose/install.sh compose/manage.sh compose/README.md compose/README.en.md
   compose/config/postgres/init.sh
   kubernetes/10-platform-api.yaml kubernetes/mds-flink-namespace.yaml
+  kubernetes/20-classic-enterprise-api.yaml kubernetes/21-classic-enterprise-flink-namespace.yaml kubernetes/22-classic-enterprise-ui.yaml
+  kubernetes/render-enterprise.sh
+  kubernetes/snapshot-enterprise.sh kubernetes/verify-enterprise-isolation.sh
+  kubernetes/rollback-enterprise.sh kubernetes/rollback-enterprise-ui.sh
+  kubernetes/enterprise-operations.md
   kubernetes/apply-flink-isolation.sh kubernetes/install.sh
   kubernetes/README.md kubernetes/README.en.md
   scripts/init-config.sh scripts/preflight-linux.sh scripts/collect-diagnostics.sh scripts/verify-package.sh
@@ -166,13 +171,73 @@ for name in "${image_variables[@]}"; do
   fi
 done
 
+# Enterprise aliases and release identities are required only for a formal
+# release. Layout-only mode validates package shape without pretending that a
+# PREPARED catalog already has a publishable Enterprise identity.
 if [[ "$mode" == "full" ]]; then
+  # Enterprise is assembled by the protected API image, but it has explicit
+  # package aliases so an isolated deployment cannot silently select a stale
+  # or retagged image. Keep these aliases in the release catalog rather than
+  # compose/.env.example: they are deployment identity, not a second image.
+  platform_api_image="$(catalog_value PLATFORM_API_IMAGE)"
+  for name in ENTERPRISE_API_IMAGE CLASSIC_ENTERPRISE_API_IMAGE; do
+    value="$(catalog_value "$name")"
+    if [[ "$value" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ && "$value" == "$platform_api_image" ]]; then
+      pass "Enterprise image alias matches PLATFORM_API_IMAGE: $name"
+    else
+      fail "Enterprise image alias is missing or differs from PLATFORM_API_IMAGE: $name"
+    fi
+  done
+
+  enterprise_ui_image="$(catalog_value CLASSIC_ENTERPRISE_UI_IMAGE)"
+  platform_ui_image="$(catalog_value PLATFORM_UI_IMAGE)"
+  if [[ "$enterprise_ui_image" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ \
+    && "$enterprise_ui_image" != "$platform_ui_image" ]]; then
+    pass "Enterprise UI image is an immutable image distinct from PLATFORM_UI_IMAGE"
+  else
+    fail "Enterprise UI image is missing, mutable, or points at PLATFORM_UI_IMAGE"
+  fi
+
+  for name in CLASSIC_ENTERPRISE_CORE_REVISION CLASSIC_ENTERPRISE_ENTERPRISE_REVISION \
+    CLASSIC_ENTERPRISE_DEPLOYMENT_REVISION CLASSIC_ENTERPRISE_RELEASE_INPUTS; do
+    value="$(catalog_value "$name")"
+    case "$name" in
+      CLASSIC_ENTERPRISE_RELEASE_INPUTS)
+        valid='^[0-9a-f]{64}$'
+        ;;
+      *)
+        valid='^[0-9a-f]{7,64}$'
+        ;;
+    esac
+    if [[ "$value" =~ $valid ]]; then
+      pass "Enterprise release identity is present: $name"
+    else
+      fail "Enterprise release identity is missing or invalid: $name"
+    fi
+  done
+
   release_status="$(sed -n 's/^RELEASE_STATUS=//p' "$ROOT/RELEASE_STATUS")"
   compose_status="$(sed -n 's/^COMPOSE_STATUS=//p' "$ROOT/RELEASE_STATUS")"
   kubernetes_status="$(sed -n 's/^KUBERNETES_STATUS=//p' "$ROOT/RELEASE_STATUS")"
+  license_review_status="$(sed -n 's/^LICENSE_REVIEW_STATUS=//p' "$ROOT/RELEASE_STATUS")"
+  if [[ "$kubernetes_status" == "GO" ]]; then
+    flink_k8s_image="$(catalog_value FLINK_K8S_IMAGE)"
+    flink_artifact_digest="$(catalog_value FLINK_UNIFIED_ARTIFACT_SHA256)"
+    if [[ "$flink_k8s_image" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]]; then
+      pass "Kubernetes Flink image is an immutable RepoDigest"
+    else
+      fail "Kubernetes Flink image is missing or not an immutable RepoDigest"
+    fi
+    if [[ "$flink_artifact_digest" =~ ^[0-9a-f]{64}$ ]]; then
+      pass "Kubernetes Flink artifact digest is present"
+    else
+      fail "Kubernetes Flink artifact digest is missing or invalid"
+    fi
+  fi
   [[ "$release_status" == "GO" ]] || fail "RELEASE_STATUS is $release_status, expected GO"
   [[ "$compose_status" == "GO" ]] || fail "COMPOSE_STATUS is $compose_status, expected GO"
   [[ "$kubernetes_status" == "GO" ]] || warn "KUBERNETES_STATUS is $kubernetes_status; release must be identified as Compose-only"
+  [[ "$license_review_status" == "GO" ]] || fail "LICENSE_REVIEW_STATUS is $license_review_status, expected GO for Core/third-party/Enterprise distribution review"
   if [[ -f "$ROOT/release-manifest.md" ]]; then
     digest_count="$(grep -Eo '@sha256:[0-9a-f]{64}' "$ROOT/release-manifest.md" | sort -u | wc -l | tr -d ' ')"
     (( digest_count >= 12 )) && pass "release manifest contains immutable image digests" \

@@ -39,6 +39,10 @@ The installer rejects tags, empty values, and non-digest references. Environment
 Kubernetes reference-installer defaults for an explicitly issued customer-specific image set; overrides never bypass
 release-state gates.
 
+Enterprise Kubernetes delivery also uses `CLASSIC_ENTERPRISE_UI_IMAGE` from the release catalog. It must be an
+immutable RepoDigest for the assembled Enterprise UI and must not reuse `PLATFORM_UI_IMAGE`; the Enterprise
+renderer enforces this when an external root route is configured.
+
 ## Database and infrastructure credentials
 
 `POSTGRES_USER` and `POSTGRES_DB` may contain letters, digits, and underscores only. `DATABASE_URL` must match the PostgreSQL settings. `OBJECT_STORAGE_ACCESS_KEY` and `OBJECT_STORAGE_SECRET_KEY` are the S3-compatible credentials used by RustFS; the application still receives mapped `MINIO_*` variables for SDK compatibility. This release requires `DORIS_USER=root` and a Doris password of at least 12 characters. The Kubernetes installer requires `mds-app/platform-api-secret.DORIS_PASSWORD` to exactly match `data-infra/doris-root-secret.password`; the Compose installer performs a real Doris login with the credentials visible inside the API container after startup. `init-config.sh` generates the remaining passwords.

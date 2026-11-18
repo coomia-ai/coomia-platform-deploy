@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: classic-enterprise-ui
+  namespace: ${CLASSIC_ENTERPRISE_NAMESPACE}
+  labels:
+    app.kubernetes.io/name: classic-enterprise-ui
+    app.kubernetes.io/part-of: coomia-classic-enterprise
+    coomia.com/edition: enterprise
+    coomia.com/isolation: dedicated
+    coomia.com/core-revision: "${CLASSIC_ENTERPRISE_CORE_REVISION}"
+    coomia.com/enterprise-revision: "${CLASSIC_ENTERPRISE_ENTERPRISE_REVISION}"
+    coomia.com/deployment-revision: "${CLASSIC_ENTERPRISE_DEPLOYMENT_REVISION}"
+    coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS_LABEL}"
+  annotations:
+    coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS}"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: classic-enterprise-ui
+      coomia.com/edition: enterprise
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: classic-enterprise-ui
+        app.kubernetes.io/part-of: coomia-classic-enterprise
+        coomia.com/edition: enterprise
+        coomia.com/isolation: dedicated
+        coomia.com/core-revision: "${CLASSIC_ENTERPRISE_CORE_REVISION}"
+        coomia.com/enterprise-revision: "${CLASSIC_ENTERPRISE_ENTERPRISE_REVISION}"
+        coomia.com/deployment-revision: "${CLASSIC_ENTERPRISE_DEPLOYMENT_REVISION}"
+        coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS_LABEL}"
+      annotations:
+        coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS}"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+${CLASSIC_ENTERPRISE_UI_IMAGE_PULL_SECRETS_BLOCK}
+      containers:
+        - name: ui
+          image: ${CLASSIC_ENTERPRISE_UI_IMAGE}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - { containerPort: 3000, name: http }
+          env:
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+          readinessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 45
+            periodSeconds: 30
+          resources:
+            requests: { cpu: "100m", memory: 256Mi }
+            limits: { cpu: "2", memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: classic-enterprise-ui
+  namespace: ${CLASSIC_ENTERPRISE_NAMESPACE}
+  labels:
+    app.kubernetes.io/name: classic-enterprise-ui
+    app.kubernetes.io/part-of: coomia-classic-enterprise
+spec:
+  selector:
+    app.kubernetes.io/name: classic-enterprise-ui
+    coomia.com/edition: enterprise
+  ports:
+    - { name: http, port: 3000, targetPort: 3000 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: classic-enterprise-ui-ingress
+  namespace: ${CLASSIC_ENTERPRISE_NAMESPACE}
+  labels:
+    app.kubernetes.io/name: classic-enterprise-ui
+    coomia.com/edition: enterprise
+    coomia.com/isolation: dedicated
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: classic-enterprise-ui
+      coomia.com/edition: enterprise
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+${CLASSIC_ENTERPRISE_UI_INGRESS_POLICY_BLOCK}
+      ports:
+        - protocol: TCP
+          port: 3000

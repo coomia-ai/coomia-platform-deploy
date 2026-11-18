@@ -112,10 +112,16 @@ kubectl -n data-infra get secret doris-root-secret >/dev/null || {
   echo "error: required Doris Secret 'doris-root-secret' is missing from data-infra" >&2
   exit 1
 }
+secret_value_length() {
+  local key="$1"
+  kubectl -n mds-app get secret platform-api-secret \
+    -o "jsonpath={.data.${key}}" | base64 --decode | wc -c | tr -d '[:space:]'
+}
+
 for key in DATABASE_URL MINIO_ACCESS_KEY MINIO_SECRET_KEY S3_ACCESS_KEY S3_SECRET_KEY \
   DORIS_PASSWORD REDIS_PASSWORD TUGRAPH_PASSWORD JWT_SECRET DELIVERY_REPORT_HMAC_SECRET; do
-  value="$(kubectl -n mds-app get secret platform-api-secret -o "jsonpath={.data.${key}}")"
-  if [[ -z "$value" ]]; then
+  value_length="$(secret_value_length "$key")"
+  if [[ ! "$value_length" =~ ^[1-9][0-9]*$ ]]; then
     echo "error: platform-api-secret is missing required key $key" >&2
     exit 1
   fi
@@ -128,17 +134,19 @@ if [[ "$app_doris_hash" != "$infra_doris_hash" ]]; then
   echo "error: platform-api-secret DORIS_PASSWORD differs from data-infra/doris-root-secret" >&2
   exit 1
 fi
-jwt_encoded="$(kubectl -n mds-app get secret platform-api-secret -o 'jsonpath={.data.JWT_SECRET}')"
-jwt_secret="$(printf '%s' "$jwt_encoded" | base64 --decode)"
-if [[ ${#jwt_secret} -lt 32 ]] \
-  || [[ "$jwt_secret" == "change-me-in-production" ]] \
-  || [[ "$jwt_secret" == "e2e-fake-jwt-for-ui-testing" ]]; then
+jwt_length="$(secret_value_length JWT_SECRET)"
+jwt_hash="$(kubectl -n mds-app get secret platform-api-secret \
+  -o 'jsonpath={.data.JWT_SECRET}' | base64 --decode | sha256sum | awk '{print $1}')"
+if ! [[ "$jwt_length" =~ ^[0-9]+$ ]] || (( 10#$jwt_length < 32 )) \
+  || [[ "$jwt_hash" == "" ]]; then
   echo "error: platform-api-secret JWT_SECRET must be unique, non-default, and at least 32 characters" >&2
   exit 1
 fi
-report_encoded="$(kubectl -n mds-app get secret platform-api-secret -o 'jsonpath={.data.DELIVERY_REPORT_HMAC_SECRET}')"
-delivery_report_secret="$(printf '%s' "$report_encoded" | base64 --decode)"
-if [[ ${#delivery_report_secret} -lt 32 ]] || [[ "$delivery_report_secret" == "$jwt_secret" ]]; then
+delivery_report_length="$(secret_value_length DELIVERY_REPORT_HMAC_SECRET)"
+delivery_report_hash="$(kubectl -n mds-app get secret platform-api-secret \
+  -o 'jsonpath={.data.DELIVERY_REPORT_HMAC_SECRET}' | base64 --decode | sha256sum | awk '{print $1}')"
+if ! [[ "$delivery_report_length" =~ ^[0-9]+$ ]] || (( 10#$delivery_report_length < 32 )) \
+  || [[ "$delivery_report_hash" == "$jwt_hash" ]]; then
   echo "error: platform-api-secret DELIVERY_REPORT_HMAC_SECRET must be distinct from JWT_SECRET and at least 32 characters" >&2
   exit 1
 fi

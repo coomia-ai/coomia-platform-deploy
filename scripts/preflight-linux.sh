@@ -50,7 +50,14 @@ else
   check_command kubectl
   check_command envsubst
   kubectl cluster-info >/dev/null 2>&1 && pass "Kubernetes API is reachable" || fail "Kubernetes API is not reachable"
-  required=(kubernetes/install.sh kubernetes/10-platform-api.yaml kubernetes/mds-flink-namespace.yaml)
+  required=(
+    kubernetes/install.sh kubernetes/10-platform-api.yaml kubernetes/mds-flink-namespace.yaml
+    kubernetes/20-classic-enterprise-api.yaml kubernetes/21-classic-enterprise-flink-namespace.yaml kubernetes/22-classic-enterprise-ui.yaml
+    kubernetes/render-enterprise.sh
+    kubernetes/snapshot-enterprise.sh kubernetes/verify-enterprise-isolation.sh
+    kubernetes/rollback-enterprise.sh kubernetes/rollback-enterprise-ui.sh
+    kubernetes/enterprise-operations.md
+  )
 fi
 
 for file in "${required[@]}"; do

@@ -12,7 +12,10 @@
 - 全新空环境安装、首次管理员、License 激活和基础业务验收通过。
 - 升级、回滚、备份和恢复演练通过。
 - 已知问题已评估并获得发布批准。
+- Core AGPL、第三方声明、对应源码义务以及 Enterprise 商业组合分发审查均已批准（`LICENSE_REVIEW_STATUS=GO`）。
 - `bash scripts/verify-package.sh` 返回成功。
+
+`bash scripts/verify-package.sh --layout-only` 只检查交付包的文件布局、脚本语法、源码/密钥边界、配置模式和当前共享镜像目录；它不会要求正式 Enterprise 发布身份，也不会批准发布。正式交付必须运行不带参数的完整门禁，并满足全部准入条件。
 
 验收证据必须明确覆盖 PostgreSQL 空卷初始化、首个平台注册用户、全部基础设施镜像、数据库迁移兼容性、platform-ui 可用性以及 Ingress/TLS 责任边界。
 
@@ -30,4 +33,4 @@ Compose 不在当前 K8s 候选范围内。Kubernetes 仍为参考实现，当�
 
 ## 状态变更
 
-将状态改为 `GO` 前，发布负责人必须确认所有准入项有可追溯证据。任何镜像、脚本或清单变更都会使既有证据失效，必须重新执行相关验证。
+将状态改为 `GO` 前，发布负责人必须确认所有准入项有可追溯证据，并将 `LICENSE_REVIEW_STATUS` 设置为 `GO`。该字段覆盖 Core AGPL、第三方声明、对应源码义务以及 Enterprise 商业组合分发审查。任何镜像、脚本或清单变更都会使既有证据失效，必须重新执行相关验证。

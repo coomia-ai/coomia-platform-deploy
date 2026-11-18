@@ -1,0 +1,21 @@
+# Reference-only Enterprise Flink namespace.
+# Render with render-enterprise.sh; do not apply this template directly.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+  labels:
+    coomia.com/role: classic-enterprise-flink
+    coomia.com/isolation: dedicated
+    coomia.com/core-revision: "${CLASSIC_ENTERPRISE_CORE_REVISION}"
+    coomia.com/enterprise-revision: "${CLASSIC_ENTERPRISE_ENTERPRISE_REVISION}"
+    coomia.com/deployment-revision: "${CLASSIC_ENTERPRISE_DEPLOYMENT_REVISION}"
+    coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS_LABEL}"
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+  annotations:
+    coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS}"
