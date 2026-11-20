@@ -19,3 +19,30 @@ metadata:
     pod-security.kubernetes.io/warn-version: latest
   annotations:
     coomia.com/release-inputs: "${CLASSIC_ENTERPRISE_RELEASE_INPUTS}"
+---
+# The API owns project credential lifecycle records in its dedicated Flink namespace.
+# Secret CREATE cannot be constrained by resourceNames in native Kubernetes RBAC.
+# Keep unrelated application or infrastructure Secrets out of this namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: classic-enterprise-project-credentials
+  namespace: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: classic-enterprise-project-credentials
+  namespace: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+subjects:
+  - kind: ServiceAccount
+    name: classic-enterprise-api
+    namespace: ${CLASSIC_ENTERPRISE_NAMESPACE}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: classic-enterprise-project-credentials

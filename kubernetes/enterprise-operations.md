@@ -12,6 +12,13 @@ requires an immutable `CLASSIC_ENTERPRISE_UI_IMAGE`; the renderer keeps
 `classic-enterprise-ui`. Do not modify the existing M2 `getai-tools.com` Ingress
 until the UI image, TLS, host, and route checks have passed.
 
+The UI's server-rendered pages use the runtime-only `INTERNAL_API_URL`, set to
+`http://classic-enterprise-api:8050` in the same namespace. Browser requests
+continue through the same-origin `/api` routes. Without the internal address,
+Next server components attempt `localhost:8050` inside the UI container even
+when browser API requests work. Verify an authenticated dashboard and project
+list after deployment; a working login page alone does not exercise this path.
+
 For a Linux release artifact, build the UI from the assembled source with
 `coomia-enterprise/ui/edition/Dockerfile.linux.dist`; it installs the locked
 dependencies and runs the Next production build inside `node:22-alpine`, then
@@ -61,6 +68,31 @@ standalone output and must not receive a Windows `node_modules` tree.
    CLASSIC_ENTERPRISE_RELEASE_INPUTS=<64-char-input-digest> \
      bash kubernetes/render-enterprise.sh /tmp/classic-enterprise.yaml
    ```
+
+## Project Credential Prerequisites
+
+The API provisions project-scoped Doris and object-storage identities and stores
+their lifecycle records in the dedicated Enterprise Flink namespace. The rendered
+`classic-enterprise-project-credentials` Role grants only Secret get/create/update/
+delete to `classic-enterprise-api` in the Enterprise API namespace. It grants no
+list/watch/patch, other resources or access to another namespace. Kubernetes RBAC
+cannot restrict Secret CREATE by resourceNames, so keep unrelated application and
+infrastructure Secrets out of this API-owned credential namespace. Flink Operator
+and job-runtime permissions remain separately managed prerequisites.
+
+Match the IAM provider to the actual shared object-storage service. The renderer
+defaults to RustFS; for an existing MinIO service explicitly set
+`CLASSIC_ENTERPRISE_OBJECT_STORAGE_IAM_PROVIDER=minio` when rendering. Only
+`minio` and `rustfs` are accepted. This configures the administration protocol; it
+does not replace storage or change existing keys.
+
+If a project reports `CREDENTIALS_REQUIRED`, first verify these exact namespace
+permissions and the provider. Use the authenticated project credential-status
+endpoint for secret-free lifecycle state. After fixing the cause, retry the
+normal project `/provision` endpoint and require both `ACTIVE` and a managed,
+ready credential generation without pending recovery. Retain failed pending
+records for the normal recovery algorithm; do not copy bootstrap administrator
+credentials into project bundles or force the project status in the database.
 
 ## Snapshot before a change
 
