@@ -46,3 +46,295 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: classic-enterprise-project-credentials
+
+---
+# The trusted Enterprise API controls only this dedicated Flink namespace.
+# Reuse the platform API runtime rules; do not grant a ClusterRole or access
+# to the separate mds-flink namespace. Workload identities still cannot read Secrets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: classic-enterprise-api-flink-runtime
+  namespace: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+rules:
+  - apiGroups: ["flink.apache.org"]
+    resources: ["flinkdeployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["delete"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    # The trusted control plane resolves operator-provisioned, project-bound
+    # sink credential bundles by exact deterministic name. Rotation replaces
+    # those Secrets by resourceVersion; list/watch/patch remain unavailable.
+    # Flink workload service accounts retain zero Secret API permissions.
+    verbs: ["get", "create", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["create", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["create", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles"]
+    resourceNames: ["flink-runtime"]
+    verbs: ["bind"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: classic-enterprise-api-flink-runtime
+  namespace: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: classic-enterprise-api-flink-runtime
+subjects:
+  - kind: ServiceAccount
+    name: classic-enterprise-api
+    namespace: ${CLASSIC_ENTERPRISE_NAMESPACE}
+---
+# Per-job workload capability; no shared workload binding and no Secret access.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: flink-runtime
+  namespace: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Native Flink resolves the JobManager Deployment only to attach its owner
+  # reference to dynamically created TaskManager Pods.  Keep this read-only.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get"]
+---
+# Admission restrictions apply only to this exact Enterprise namespace.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-secret-isolation
+spec:
+  failurePolicy: Fail
+  matchConditions:
+    - name: owned-enterprise-flink-namespace
+      expression: "request.namespace == '${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}'"
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        (object.spec.serviceAccountName.startsWith('mds-') &&
+         request.userInfo.username == 'system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:' + object.spec.serviceAccountName)
+      message: "Flink workloads may create Pods only under their own isolated service account"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        ((object.metadata.name == object.spec.serviceAccountName ||
+          object.metadata.name.startsWith(object.spec.serviceAccountName + '-')) &&
+         has(object.metadata.labels) && has(object.metadata.labels.app) &&
+         object.metadata.labels.app == object.spec.serviceAccountName)
+      message: "Flink workload Pod name and app label must belong to its own cluster id"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        !has(object.spec.volumes) ||
+        object.spec.volumes.all(v, !has(v.secret) ||
+          v.secret.secretName.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))
+      message: "Flink workload Pods may mount only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        !has(object.spec.volumes) || object.spec.volumes.all(v,
+          !has(v.projected) || !has(v.projected.sources) || v.projected.sources.all(s,
+            !has(s.secret) ||
+            s.secret.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink projected volumes may include only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        object.spec.containers.all(c, !has(c.env) || c.env.all(e,
+          !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+          e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink workload containers may reference only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        !has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          !has(c.env) || c.env.all(e, !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+          e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink init containers may reference only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        object.spec.containers.all(c, !has(c.envFrom) || c.envFrom.all(e,
+          !has(e.secretRef) ||
+          e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink workload containers may import only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        !has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          !has(c.envFrom) || c.envFrom.all(e, !has(e.secretRef) ||
+          e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-')))
+      message: "Flink init containers may import only their own job Secret"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        !has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
+          (!has(c.env) || c.env.all(e, !has(e.valueFrom) || !has(e.valueFrom.secretKeyRef) ||
+           e.valueFrom.secretKeyRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))) &&
+          (!has(c.envFrom) || c.envFrom.all(e, !has(e.secretRef) ||
+           e.secretRef.name.startsWith('mds-sql-' + object.spec.serviceAccountName.substring(4) + '-'))))
+      message: "Flink ephemeral containers may reference only their own job Secret"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-secret-isolation
+spec:
+  policyName: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-secret-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        coomia.com/role: classic-enterprise-flink
+        kubernetes.io/metadata.name: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+---
+# DELETE admission receives the existing Pod through oldObject.  A workload
+# may terminate only Pods carrying its own per-job service account.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-pod-delete-isolation
+spec:
+  failurePolicy: Fail
+  matchConditions:
+    - name: owned-enterprise-flink-namespace
+      expression: "request.namespace == '${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}'"
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["DELETE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        (has(oldObject.spec.serviceAccountName) &&
+         request.userInfo.username == 'system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:' + oldObject.spec.serviceAccountName)
+      message: "Flink workloads may delete only Pods owned by their isolated service account"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-pod-delete-isolation
+spec:
+  policyName: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-pod-delete-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        coomia.com/role: classic-enterprise-flink
+        kubernetes.io/metadata.name: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+---
+# Flink creates Services, HA ConfigMaps and coordination Leases beneath its
+# cluster id, which is identical to the per-job service-account name.  Keep
+# the shared discovery verbs, but fail closed on cross-job mutations.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-resource-isolation
+spec:
+  failurePolicy: Fail
+  matchConditions:
+    - name: owned-enterprise-flink-namespace
+      expression: "request.namespace == '${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}'"
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources: ["services", "configmaps"]
+      - apiGroups: ["coordination.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources: ["leases"]
+  validations:
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        (request.operation == 'DELETE'
+          ? (oldObject.metadata.name == request.userInfo.username.substring(size('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:')) ||
+             oldObject.metadata.name.startsWith(request.userInfo.username.substring(size('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:')) + '-'))
+          : (object.metadata.name == request.userInfo.username.substring(size('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:')) ||
+             object.metadata.name.startsWith(request.userInfo.username.substring(size('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:')) + '-')))
+      message: "Flink workloads may mutate only resources under their own cluster id"
+    - expression: >-
+        !request.userInfo.username.startsWith('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:') ||
+        request.resource.resource != 'services' || request.operation == 'DELETE' ||
+        (has(object.spec.selector) && has(object.spec.selector.app) &&
+         object.spec.selector.app == request.userInfo.username.substring(size('system:serviceaccount:${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}:')))
+      message: "Flink workload Services must select only Pods from their own cluster id"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-resource-isolation
+spec:
+  policyName: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-job-resource-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        coomia.com/role: classic-enterprise-flink
+        kubernetes.io/metadata.name: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
+---
+# The control plane creates one RoleBinding per Flink job.  Without this gate it
+# could bind flink-runtime to its own cross-namespace ServiceAccount and then
+# use that role to create Pods outside the per-job workload restrictions above.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-rolebinding-isolation
+spec:
+  failurePolicy: Fail
+  matchConditions:
+    - name: owned-enterprise-flink-namespace
+      expression: "request.namespace == '${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}'"
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["rolebindings"]
+  validations:
+    - expression: >-
+        request.userInfo.username != 'system:serviceaccount:${CLASSIC_ENTERPRISE_NAMESPACE}:classic-enterprise-api' ||
+        (object.roleRef.apiGroup == 'rbac.authorization.k8s.io' &&
+         object.roleRef.kind == 'Role' && object.roleRef.name == 'flink-runtime' &&
+         object.subjects.size() == 1 &&
+         object.subjects[0].kind == 'ServiceAccount' &&
+         object.subjects[0].namespace == '${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}' &&
+         object.subjects[0].name.matches('^mds-[0-9a-f]{12}$') &&
+         object.metadata.name == object.subjects[0].name + '-runtime')
+      message: "Enterprise API may bind flink-runtime only to its matching isolated job identity"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-rolebinding-isolation
+spec:
+  policyName: ${CLASSIC_ENTERPRISE_NAMESPACE}-flink-rolebinding-isolation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        coomia.com/role: classic-enterprise-flink
+        kubernetes.io/metadata.name: ${CLASSIC_ENTERPRISE_FLINK_NAMESPACE}
